@@ -21,7 +21,7 @@ suppressPackageStartupMessages(ipak(packages))
 ```
 
 ```{r, include=FALSE}
-#Data import and formatting
+#Data import and formatting 
 Verbalfluency.raw <- read.csv("Raw data - Word fluency_complete.csv")
 
 VF.trimmed <- Verbalfluency.raw[,-c(2:7,17)] # removing columns that are not needed

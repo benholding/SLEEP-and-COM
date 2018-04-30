@@ -1,0 +1,17 @@
+name: "Sleep and Communication paper"
+output_dir: "."
+navbar:
+  title: "Sleep & Communication"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Verbal Fluency"
+      href: WF_bayesian.html
+    - text: "Model Building"
+      href: WorkingMemory.html
+    - text: "Taboo"
+      href: Short-term_memory.html 
+    - text: "Sociometric badge"
+      href: Maths.html 
+    - text: "About"
+      href: about.html

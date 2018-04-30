@@ -1,0 +1,240 @@
+---
+title: "Sociometer analysis"
+author: "Benjamin Holding"
+date: "24/10/2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#Package Setup
+```{r}
+options(java.parameters = "-Xmx12g")
+
+ipak <- function(pkg){
+    new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+    if (length(new.pkg)) 
+        install.packages(new.pkg, dependencies = TRUE)
+    sapply(pkg, require, character.only = TRUE)
+} #function to see if package is installed. Will download if not, and then opens it.
+
+packages <- c("xlsx", "plyr", "BayesFactor", "pastecs", "sjstats", "BEST", "apaStyle")
+suppressPackageStartupMessages(ipak(packages))
+```
+
+#Data import and formatting
+```{r}
+#importing condition and sociometric data
+key <- read.csv("SleSI_Masterkey.csv")
+sociometric.raw <- read.csv("sociometric_raw_data_combined.csv")
+sociometric.tagged <- join(sociometric.raw, key, type="inner", by = "ID", match = "all") #joining the two files
+sociometric.tagged <- sociometric.tagged[which(sociometric.tagged$ID != 294),] #Removing 294 (under 18)
+
+sociometric.tagged$audio_front_volume_SCALED <- scale(sociometric.tagged$audio_front_volume, center = T, scale = T) #scaling volume (since it has no understandable natural scale)
+sociometric.tagged$audio_front_vol_consistency_SCALED <- scale(sociometric.tagged$audio_front_vol_consistency, center = T, scale = T) #scaling volume (since it has no understandable natural scale)
+```
+
+#Descriptive statistics
+```{r}
+sociometric.tagged %>% group_by(SD) %>% summarise(mean(speech_profile_total_speaking),sd(speech_profile_total_speaking)) %>% print.data.frame()
+
+sociometric.tagged %>% group_by(SD) %>% summarise(mean(audio_front_volume_SCALED),sd(audio_front_volume_SCALED)) 
+
+sociometric.tagged %>% group_by(SD) %>% summarise(mean(audio_front_vol_consistency_SCALED),sd(audio_front_vol_consistency_SCALED)) 
+
+
+```
+
+
+#Analysis
+## Total speaking time
+```{r}
+#set the priors
+Speaking.priors <- list(muM = 1050, muSD = 525)
+
+# run the bayesian 't-test'
+Speaking_best <- BESTmcmc(sociometric.tagged$speech_profile_total_speaking[sociometric.tagged$SD ==1],
+                          sociometric.tagged$speech_profile_total_speaking[sociometric.tagged$SD ==0],
+                          priors = Speaking.priors,
+                          parallel = T)
+
+#running the same to get the priors
+Speaking_best_priors <- BESTmcmc(sociometric.tagged$speech_profile_total_speaking[sociometric.tagged$SD ==1],
+                          sociometric.tagged$speech_profile_total_speaking[sociometric.tagged$SD ==0],
+                          priors = Speaking.priors,
+                          parallel = T,
+                          doPriorsOnly = T)
+
+
+# check the output
+speaking.summary <- summary(Speaking_best, ROPEm =c(-1,1), ROPEsd=c(-1, 1)) # haven't specified these so much
+speaking.summary
+
+#Creating a plot of the posterior distribution for the difference between groups
+plot(Speaking_best) #the probability that the true value is smaller than zero = 95.5%
+
+#ROPE radius plot
+speaking.meanDiff <- (Speaking_best$mu1 - Speaking_best$mu2)
+plotAreaInROPE(speaking.meanDiff, maxROPEradius = 67)
+
+#is the model a reasonable description of the data?
+plotPostPred(Speaking_best)
+
+#to see all plots
+plotAll(Speaking_best)
+
+```
+
+## Total volume
+```{r}
+# run the bayesian 't-test'
+total_volume_best <- BESTmcmc(sociometric.tagged$audio_front_volume_SCALED[sociometric.tagged$SD ==1],
+                              sociometric.tagged$audio_front_volume_SCALED[sociometric.tagged$SD ==0],
+                              parallel = T)
+
+
+# check the output
+total_volume.summary <- summary(total_volume_best, ROPEm =c(-0.01,0.01)) # haven't specified these so much
+total_volume.summary
+
+#Creating a plot of the posterior distribution for the difference between groups
+plot(total_volume_best) #the probability that the true value is smaller than zero = 95.5%
+
+        #ROPE radius plot
+volume.meanDiff <- (total_volume_best$mu1 - total_volume_best$mu2)
+plotAreaInROPE(volume.meanDiff, maxROPEradius = 0.0013)
+
+#is the model a reasonable description of the data?
+plotPostPred(total_volume_best)
+
+#to see all plots
+plotAll(total_volume_best)
+```
+
+## Volume variation
+```{r}
+# run the bayesian 't-test'
+variation_volume_best <- BESTmcmc(sociometric.tagged$audio_front_vol_consistency_SCALED[sociometric.tagged$SD ==1],
+                                  sociometric.tagged$audio_front_vol_consistency_SCALED [sociometric.tagged$SD ==0],
+                                  parallel = T)
+
+# check the output
+variation_volume.summary <- summary(variation_volume_best, ROPEm =c(-0.01,0.01)) # haven't specified these so much
+variation_volume.summary
+
+#Creating a plot of the posterior distribution for the difference between groups
+plot(variation_volume_best) #the probability that the true value is smaller than zero = 95.5%
+
+#ROPE radius plot
+variation_volume.meanDiff <- (variation_volume_best$mu1 - variation_volume_best$mu2)
+plotAreaInROPE(variation_volume.meanDiff, maxROPEradius = 0.046)
+
+#is the model a reasonable description of the data?
+plotPostPred(variation_volume_best)
+
+#to see all plots
+plotAll(variation_volume_best)
+```
+
+#Creating tables for the manuscript
+```{r}
+simple_speaking <- data.frame(row.names = "Speaking Duration",
+                         Control_mu = speaking.summary[2,1],
+                         Control_sigma = speaking.summary[5,1],
+                         SD_mu = speaking.summary[1,1],
+                         SD_sigma = speaking.summary[4,1],
+                         Difference_mean = speaking.summary[3,1],
+                         HDI_low = speaking.summary[3,5],
+                         HDI_High = speaking.summary[3,6],
+                         Effect_size = speaking.summary[9,1])
+
+simple_volume_average <- data.frame(row.names = "Speech Volume Average",
+                         Control_mu = total_volume.summary[2,1],
+                         Control_sigma = total_volume.summary[5,1],
+                         SD_mu = total_volume.summary[1,1],
+                         SD_sigma = total_volume.summary[4,1],
+                         Difference_mean = total_volume.summary[3,1],
+                         HDI_low = total_volume.summary[3,5],
+                         HDI_High = total_volume.summary[3,6],
+                         Effect_size = total_volume.summary[9,1])
+
+simple_volume_variation <- data.frame(row.names = "Speech Volume Variation",
+                         Control_mu = variation_volume.summary[2,1],
+                         Control_sigma = variation_volume.summary[5,1],
+                         SD_mu = variation_volume.summary[1,1],
+                         SD_sigma = variation_volume.summary[4,1],
+                         Difference_mean = variation_volume.summary[3,1],
+                         HDI_low = variation_volume.summary[3,5],
+                         HDI_High = variation_volume.summary[3,6],
+                         Effect_size = variation_volume.summary[9,1])
+  
+Sociometric_table <- rbind(simple_speaking, simple_volume_average, simple_volume_variation)
+Sociometric_table <- round(Sociometric_table,2)
+Sociometric_APA_table <- cbind(Outcome = row.names(Sociometric_table), Sociometric_table)
+
+myoriginalwd <- getwd()
+setwd("Tables_and_plots")
+apa.table(data = Sociometric_APA_table,
+          level1.header = c("",
+                            "Control sleep", 
+                            "Sleep deprivation", 
+                            "Difference"),
+          level1.colspan = c(1,2,2,4),
+          level2.header = colnames(Sociometric_APA_table),
+          number = "4",
+          title = "Bayesian Estimation of group differences in sociometric output",
+          filename = "Sociometric_table.docx",
+          note = "Note. HDI = Highest Density Interval; Std.dev = residual standard deviation",
+          save = T)$table
+setwd(myoriginalwd)
+```
+
+```{r}
+
+sociometric.speechduration.data <- melt(cbind("sleep deprivation" = Speaking_best$mu1, 
+                            "control sleep" = Speaking_best$mu2,
+                            "prior" = Speaking_best_priors$mu1))
+
+Speech.duration.plot <- ggdensity(sociometric.speechduration.data, x = "value", 
+   rug = F,
+   color = "Var2",
+   fill = "Var2",
+   xlim = c(550, 700),
+   xlab = "Speech Duration",
+   add = "mean",
+   palette = c("#E495A5", "#39BEB1","#ABB065")) + 
+  stat_pointintervalh(aes(y = -0.025), 
+                      data = sociometric.speechduration.data[which(sociometric.speechduration.data$Var2 == "sleep deprivation"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#E495A5") +
+  stat_pointintervalh(aes(y = -0.05), 
+                      data = sociometric.speechduration.data[which(sociometric.speechduration.data$Var2 == "control sleep"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#39BEB1") +
+  annotate("text", label = "80% and 95% HDI", x = 20.5, y = -0.044, hjust = 0, vjust = 0.3)
+
+#####
+
+sociometric.volumeVariation.data <- melt(cbind("sleep deprivation" = variation_volume_best$mu1, 
+                            "control sleep" = variation_volume_best$mu2))
+
+Speech.volume.plot <- ggdensity(sociometric.volumeVariation.data, x = "value", 
+   rug = F,
+   color = "Var2",
+   fill = "Var2",
+   xlim = c(0.53, 0.65),
+   xlab = "Speech Volume Consistency (1 = max consistency)",
+   add = "mean",
+   palette = c("#E495A5", "#39BEB1")) + 
+  stat_pointintervalh(aes(y = -50), 
+                      data = sociometric.volume.data[which(sociometric.volumeVariation.data$Var2 == "sleep deprivation"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#E495A5") +
+  stat_pointintervalh(aes(y = -100), 
+                      data = sociometric.volume.data[which(sociometric.volumeVariation.data$Var2 == "control sleep"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#39BEB1") +
+  annotate("text", label = "80% and 95% HDI", x = 0.014, y = -75, hjust = 0, vjust = 0.3)
+
+###
+sociometric.volumeVariation.data <- melt(cbind("sleep deprivation" = total_volume_best$mu1, 
+                            "control sleep" = total_volume_best$mu2))
+
+
+
+```

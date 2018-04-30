@@ -1,0 +1,374 @@
+---
+title: "Verbal Fluency"
+author: "Benjamin C. Holding"
+date: "12/06/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+#Package Setup
+knitr::opts_chunk$set(echo = TRUE)
+
+ipak <- function(pkg){
+    new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+    if (length(new.pkg)) 
+        install.packages(new.pkg, dependencies = TRUE)
+    sapply(pkg, require, character.only = TRUE)
+} #function to see if package is installed. Will download if not, and then opens it.
+
+packages <- c("brms", "plyr", "dplyr", "data.table", "lubridate", "tidyr", "xlsx", "BayesFactor", "rstanarm", "sjstats", "BEST", "apaStyle", "ggpubr", "yarrr", "bayesAB", "tidybayes",  "cowplot","gridExtra", "qpcR", "ggbeeswarm") #packages that are required
+suppressPackageStartupMessages(ipak(packages))
+```
+
+```{r, include=FALSE}
+#Data import and formatting
+Verbalfluency.raw <- read.csv("Raw data - Word fluency_complete.csv")
+
+VF.trimmed <- Verbalfluency.raw[,-c(2:7,17)] # removing columns that are not needed
+
+slesi.key <- read.csv("SleSI_Masterkey.csv") #open file containing sleep condition
+
+VF.joined <- left_join(VF.trimmed, slesi.key) #join raw data and condition data
+VF.complete1 <- VF.joined[complete.cases(VF.joined),] #only analysising complete datasets
+VF.complete <- VF.complete1[which(VF.complete1$ID != 294),] #Removing 294 (under 18)
+
+
+#making seperate folder for tables and plots
+mainDir <- getwd()
+subDir <- "Tables_and_plots"
+ifelse(!dir.exists(file.path(mainDir, subDir)), dir.create(file.path(mainDir, subDir)), FALSE)
+```
+
+#Descriptive statistics
+```{r,warning=F}
+#Mean and standard deviations for FAS score
+VF.complete %>% group_by(SD) %>% summarise(mean(Score.FAS), sd(Score.FAS)) %>% print.data.frame()
+#Mean and standard deviations for FAS errors
+VF.complete %>% group_by(SD) %>% summarise(mean(Rejected.FAS.1), sd(Rejected.FAS.1))%>% print.data.frame()
+#Mean and standard deviations for VERB score
+VF.complete %>% group_by(SD) %>% summarise(mean(Score.VERBS), sd(Score.VERBS)) %>% print.data.frame()
+#Mean and standard deviations for VERB errors
+VF.complete %>% group_by(SD) %>% summarise(mean(Rejected.VERBS), sd(Rejected.VERBS))%>% print.data.frame()
+```
+
+#Inferential statistics
+##FAS Swedish Letter Task
+```{r,warning=F}
+#Priors
+##setting only population mean and SD, others are default non-informative
+FAS.priors <- list(muM = 42, muSD = 21) #priors based on "Swedish norms for word fluency tests: FAS, animals and verbs"
+
+#Running the bayesian 't-test'
+FAS_best <- BESTmcmc(VF.complete$Score.FAS[VF.complete$SD ==1], 
+                     VF.complete$Score.FAS[VF.complete$SD ==0], 
+                     priors = FAS.priors,
+                     parallel = T)
+
+#Saving just the priors
+FAS_best_priors <- BESTmcmc(VF.complete$Score.FAS[VF.complete$SD ==1], 
+                     VF.complete$Score.FAS[VF.complete$SD ==0], 
+                     priors = FAS.priors,
+                     parallel = T,
+                     doPriorsOnly=T)
+
+#Checking the output
+FAS.summary <- summary(FAS_best)
+FAS.summary
+
+#######################ERRORS########################
+FAS_best_errors <- BESTmcmc(VF.complete$Rejected.FAS.1[VF.complete$SD ==1], 
+                     VF.complete$Rejected.FAS.1[VF.complete$SD ==0],
+                     parallel = T)
+FAS_errors.summary <- summary(FAS_best_errors)
+FAS_errors.summary
+
+```
+
+##Swedish Verb Task
+```{r,warning=F}
+#Priors
+##setting only population mean and SD, others are default non-informative
+Verbs.priors <- list(muM = 20, muSD = 10) #priors based on "Swedish norms for word fluency tests: FAS, animals and verbs"
+
+#Running the bayesian 't-test'
+Verb_best <- BESTmcmc(VF.complete$Score.VERBS[VF.complete$SD ==1],
+                      VF.complete$Score.VERBS[VF.complete$SD ==0],
+                      priors = Verbs.priors,
+                      parallel = T)
+
+VERB_best_priors <- BESTmcmc(VF.complete$Score.VERBS[VF.complete$SD ==1],
+                      VF.complete$Score.VERBS[VF.complete$SD ==0],
+                      priors = Verbs.priors,
+                      parallel = T,
+                     doPriorsOnly=T)
+
+#Checking the output
+Verb.summary <- summary(Verb_best)
+Verb.summary
+
+###########################ERRORS##########################
+VERB_best_errors <- BESTmcmc(VF.complete$Rejected.VERBS[VF.complete$SD ==1], 
+                     VF.complete$Rejected.VERBS[VF.complete$SD ==0],
+                     parallel = T)
+VERB_errors.summary <- summary(VERB_best_errors)
+VERB_errors.summary
+```
+
+
+```{r, eval=FALSE, include=FALSE}
+#Creating tables for the manuscript
+simple_FAS <- data.frame(row.names = "FAS Score",
+                         Control_mu = FAS.summary[2,1],
+                         Control_sigma = FAS.summary[5,1],
+                         SD_mu = FAS.summary[1,1],
+                         SD_sigma = FAS.summary[4,1],
+                         Difference_mean = FAS.summary[3,1],
+                         HDI_low = FAS.summary[3,5],
+                         HDI_High = FAS.summary[3,6],
+                         Effect_size = FAS.summary[9,1])
+
+simple_FAS_errors <- data.frame(row.names = "FAS Errors",
+                         Control_mu = FAS_errors.summary[2,1],
+                         Control_sigma = FAS_errors.summary[5,1],
+                         SD_mu = FAS_errors.summary[1,1],
+                         SD_sigma = FAS_errors.summary[4,1],
+                         Difference_mean = FAS_errors.summary[3,1],
+                         HDI_low = FAS_errors.summary[3,5],
+                         HDI_High = FAS_errors.summary[3,6],
+                         Effect_size = FAS_errors.summary[9,1])
+
+simple_verbs <- data.frame(row.names = "Verbs",
+                         Control_mu = Verb.summary[2,1],
+                         Control_sigma = Verb.summary[5,1],
+                         SD_mu = Verb.summary[1,1],
+                         SD_sigma = Verb.summary[4,1],
+                         Difference_mean = Verb.summary[3,1],
+                         HDI_low = Verb.summary[3,5],
+                         HDI_High = Verb.summary[3,6],
+                         Effect_size = Verb.summary[9,1])
+
+simple_verbs_errors <- data.frame(row.names = "Verbs Errors",
+                         Control_mu = VERB_errors.summary[2,1],
+                         Control_sigma = VERB_errors.summary[5,1],
+                         SD_mu = VERB_errors.summary[1,1],
+                         SD_sigma = VERB_errors.summary[4,1],
+                         Difference_mean = VERB_errors.summary[3,1],
+                         HDI_low = VERB_errors.summary[3,5],
+                         HDI_High = VERB_errors.summary[3,6],
+                         Effect_size = VERB_errors.summary[9,1])
+  
+WF_table <- rbind(simple_FAS,simple_FAS_errors, simple_verbs, simple_verbs_errors)
+WF_table <- round(WF_table,2)
+WF_APA_table <- cbind(Task = row.names(WF_table), WF_table)
+
+myoriginalwd <- getwd()
+setwd("Tables_and_plots")
+apa.table(data = WF_APA_table,
+          level1.header = c("",
+                            "Control sleep", 
+                            "Sleep deprivation", 
+                            "Difference"),
+          level1.colspan = c(1,2,2,4),
+          level2.header = colnames(WF_APA_table),
+          number = "1",
+          title = "Bayesian Estimation of group differences in verbal fluency",
+          filename = "VerbalFluency_table.docx",
+          note = "Note. HDI = Highest Density Interval; Std.dev = residual standard deviation; Effect size = d-sub-a (Macmillan & Creelman 1991)",
+          save = T)$table
+setwd(myoriginalwd)
+
+```
+
+```{r, eval=FALSE, include=FALSE}
+#Creating plots for manuscript
+#FAS plot
+FAS.plot.option1 <- plot(FAS_best,
+                 xlab="Difference between conditions",
+                 col='wheat', 
+                 border='magenta',
+                 showCurve = T)
+
+FAS.plot.option2 <- plot(FAS_best,
+                 xlab="Difference between conditions")
+
+FAS.plot.option3 <- pirateplot(Score.FAS ~ SD,
+           data=VF.complete,
+           theme = 1,
+           main = "FAS verbal fluency performance",
+           xlab = "Condition",
+           ylab = "FAS score",
+           inf.method = 'hdi',
+           hdi.o = .7,
+           inf.disp = "bean")
+
+FAS.plot.option4 <-  plot(bayesTest(VF.complete$Score.VERBS[VF.complete$SD ==1],
+                      VF.complete$Score.VERBS[VF.complete$SD ==0],
+                      priors = c('mu' = 5, 'lambda' = 1, 'alpha' = 3, 'beta' = 1),
+          distribution = 'normal'))
+
+###
+option5.table <- melt(cbind("Sleep deprivation" = FAS_best$mu1, 
+                            "Control sleep" = FAS_best$mu2,
+                            "Prior" = FAS_best_priors$mu1))
+
+FAS.plot.option5 <- ggdensity(option5.table, x = "value",
+   add = "mean", 
+   rug = F,
+   color = "Var2",
+   fill = "Var2",
+   xlim = c(30, 60))
+
+FAS.plot.option6 <- ggdensity(option5.table, x = "value",
+   add = "mean", 
+   rug = F,
+   color = "Var2",
+   fill = "Var2",
+   xlim = c(35, 45),
+   xlab = "Score")
+
+FAS.posterior.difference <- as.data.frame(FAS_best$mu1-FAS_best$mu2)
+colnames(FAS.posterior.difference) <- "Difference"
+
+FAS.plot.option7 <- ggdensity(FAS.posterior.difference,
+                              x = "Difference",
+                              add = "mean",
+                              fill = "yellow",
+                              xlab = "FAS: Condition Difference") + 
+  stat_pointintervalh(aes(y = -0.025), 
+                      data = FAS.posterior.difference, fun.data = mean_hdih, .prob = c(.95, .80), color = "black")
+
+#to do: add HDI underneith plots
+
+FAS.plot.option8 <- ggdensity(option5.table, x = "value", 
+   rug = F,
+   color = "Var2",
+   fill = "Var2",
+   xlim = c(35, 45),
+   ylab = "Posterior probability distribution",
+   legend = "right",
+   xlab = "FAS Score",
+   add = "mean",
+   palette = c("#E495A5","#39BEB1","#ABB065")) + 
+  stat_pointintervalh(aes(y = -0.025), 
+                      data = option5.table[which(option5.table$Var2 == "Sleep deprivation"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#E495A5") +
+  stat_pointintervalh(aes(y = -0.05), 
+                      data = option5.table[which(option5.table$Var2 == "Control sleep"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#39BEB1") +
+  annotate("text", label = "80% and 95% HDI", x = 43, y = -0.044, hjust = 0, vjust = 0.3) +
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        legend.title=element_blank())
+
+
+##
+
+option6.table <- melt(cbind("Sleep deprivation" = Verb_best$mu1, 
+                            "Control sleep" = Verb_best$mu2,
+                            "Prior" = VERB_best_priors$mu1))
+
+VERB.plot <- ggdensity(option6.table, x = "value", 
+   rug = F,
+   color = "Var2",
+   fill = "Var2",
+   xlim = c(17, 23),
+   xlab = "Verb Score",
+   add = "mean",
+   palette = c("#E495A5", "#39BEB1","#ABB065")) + 
+  stat_pointintervalh(aes(y = -0.025), 
+                      data = option6.table[which(option6.table$Var2 == "sleep deprivation"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#E495A5") +
+  stat_pointintervalh(aes(y = -0.05), 
+                      data = option6.table[which(option6.table$Var2 == "control sleep"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#39BEB1") +
+  annotate("text", label = "80% and 95% HDI", x = 20.5, y = -0.044, hjust = 0, vjust = 0.3)
+
+Verb.posterior.difference <- as.data.frame(Verb_best$mu1-Verb_best$mu2)
+colnames(Verb.posterior.difference) <- "Difference"
+
+Verb.plot.option7 <- ggdensity(Verb.posterior.difference,
+                              x = "Difference",
+                              add = "mean",
+                              fill = "yellow",
+                              xlab = "Verb: Condition Difference") + 
+  stat_pointintervalh(aes(y = -0.025), 
+                      data = Verb.posterior.difference, fun.data = mean_hdih, .prob = c(.95, .80), color = "black")
+
+grid.arrange(FAS.plot.option8,VERB.plot,
+             FAS.plot.option7, Verb.plot.option7,
+             ncol=2)
+
+#final suggestions for manuscript
+
+FAS.plot.final <- ggdensity(option5.table, x = "value", 
+   rug = F,
+   color = "Var2",
+   fill = "Var2",
+   xlim = c(35, 48),
+   ylab = "Posterior probability distribution",
+   xlab = "FAS Score",
+   add = "mean",
+   palette = c("#E495A5","#39BEB1","#ABB065")) + 
+  stat_pointintervalh(aes(y = -0.025), 
+                      data = option5.table[which(option5.table$Var2 == "Sleep deprivation"),], fun.data = mean_hdih, .prob = c(.95), color = "#E495A5") +
+  stat_pointintervalh(aes(y = -0.05), 
+                      data = option5.table[which(option5.table$Var2 == "Control sleep"),], fun.data = mean_hdih, .prob = c(.95), color = "#39BEB1") +
+  annotate("text", label = "95% HDI", x = 43, y = -0.044, hjust = 0, vjust = 0.3) +
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        legend.title=element_blank())
+
+VERB.plot.final <- ggdensity(option6.table, x = "value", 
+   rug = F,
+   color = "Var2",
+   fill = "Var2",
+   xlim = c(17, 22.5),
+   ylab = "Posterior probability distribution",
+   xlab = "Verb Score",
+   add = "mean",
+   palette = c("#E495A5", "#39BEB1","#ABB065")) + 
+  stat_pointintervalh(aes(y = -0.049), 
+                      data = option6.table[which(option6.table$Var2 == "Sleep deprivation"),], fun.data = mean_hdih, .prob = c(.95), color = "#E495A5") +
+  stat_pointintervalh(aes(y = -0.09), 
+                      data = option6.table[which(option6.table$Var2 == "Control sleep"),], fun.data = mean_hdih, .prob = c(.95), color = "#39BEB1") +
+  annotate("text", label = "95% HDI", x = 20.5, y = -0.08, hjust = 0, vjust = 0.3)+
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        legend.title=element_blank())
+
+### raw plots
+
+FAS.raw.plot <- ggviolin(VF.complete, x = "SD", 
+                         y = "Score.FAS", 
+                         fill = "SD",
+                         legend = "none",
+         palette = c("#39BEB1","#E495A5"),
+         orientation = "horiz",
+         ylab = "Raw score",
+         add = c("dotplot", "mean_sd")) +
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title.y=element_blank())
+
+Verb.raw.plot <- ggviolin(VF.complete, x = "SD", 
+                         y = "Score.VERBS", 
+                         fill = "SD",
+                         legend = "none",
+         palette = c("#39BEB1","#E495A5"),
+         orientation = "horiz",
+         ylab = "Raw score",
+         add = c("dotplot", "mean_sd")) +
+  theme(axis.text.y=element_blank(),
+        axis.ticks.y=element_blank(),
+        axis.title.y=element_blank())
+
+FAS.plot <- ggdraw() +
+  draw_plot(FAS.plot.final + theme(legend.justification = "bottom"), 0, 0, 1, 1) +
+  draw_plot(FAS.raw.plot +
+              theme(legend.justification = "top"), 0.6, 0.4, 0.4, 0.4)
+
+verb.plot <- ggdraw() +
+  draw_plot(VERB.plot.final + theme(legend.justification = "bottom"), 0, 0, 1, 1) +
+  draw_plot(Verb.raw.plot +
+              theme(legend.justification = "top"), 0.6, 0.4, 0.4, 0.4)
+
+plot_grid(FAS.plot, verb.plot, align = "h",labels = "AUTO")
+
+```
+

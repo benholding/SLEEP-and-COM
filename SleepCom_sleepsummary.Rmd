@@ -1,0 +1,53 @@
+---
+title: "Calculating sleep differences"
+author: "Benjamin Holding"
+date: "01/02/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+###### study 2 - control group TST and overall accuracy
+library(data.table)
+actigraphs <- read.csv("SleSI_actigraphy_Complete_2.csv")
+actigraphs$Morning <- as.numeric(as.character(actigraphs$Morning))
+actigraphs2 <- cbind(actigraphs$FP, actigraphs$SD., actigraphs$Morning, actigraphs$Time.in.bed..min., actigraphs$Assumed.sleep.time..min.)
+colnames(actigraphs2) <- c("ID", "SD", "Night", "TIB", "TST")
+actigraphs2 <- as.data.frame(actigraphs2)
+actigraphs3 <-  dplyr::rename(actigraphs2, Participant = ID)
+actigraphs3$Participant <- as.factor(actigraphs3$Participant)
+
+###############
+#average time in bed per participant prior
+
+average_TIB <- aggregate(TIB ~ ID, actigraphs2, mean)
+mean(average_TIB$TIB)
+
+temp1 <- actigraphs2[which(actigraphs2$Night==4),]
+temp2 <- temp1[which(temp1$SD==0),]
+temp3 <- temp2[which(temp2$ID != 294),] #Removing 294 (under 18)
+
+TIB <- mean(temp3$TIB, na.rm=T)/60
+
+format(ISOdatetime(1900,1,1,0,0,0, tz="GMT") + 
+       as.difftime(TIB, unit="hours"), "%H:%M:%S")
+
+TST <- mean(temp3$TST, na.rm=T)/60
+
+format(ISOdatetime(1900,1,1,0,0,0, tz="GMT") + 
+       as.difftime(TST, unit="hours"), "%H:%M:%S")
+
+TIB_SD <- sd(temp3$TIB, na.rm=T)/60
+
+format(ISOdatetime(1900,1,1,0,0,0, tz="GMT") + 
+       as.difftime(TIB_SD, unit="hours"), "%H:%M:%S")
+
+TST_SD <- sd(temp3$TST, na.rm=T)/60
+
+format(ISOdatetime(1900,1,1,0,0,0, tz="GMT") + 
+       as.difftime(TST_SD, unit="hours"), "%H:%M:%S")
+```
+

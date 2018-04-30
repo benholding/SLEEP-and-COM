@@ -1,0 +1,303 @@
+---
+title: "Bayesian Tabu"
+author: "Benjamin Holding"
+date: "31/05/2017"
+output: html_document
+---
+
+#Setup
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+ipak <- function(pkg){
+    new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+    if (length(new.pkg)) 
+        install.packages(new.pkg, dependencies = TRUE)
+    sapply(pkg, require, character.only = TRUE)
+} #function to see if package is installed. Will download if not, and then opens it.
+
+packages <- c("brms", "plyr", "dplyr", "data.table", "lubridate", "tidyr", "xlsx") #packages that are required
+suppressPackageStartupMessages(ipak(packages))
+
+```
+
+#Data import and formatting
+```{r}
+tabu.initial <- read.csv("Taboo_raw_combined.csv") #reading in long form data
+
+colnames(tabu.initial) <- c("Word",	"Score", "Speaker ID",	"Filename", "Notes") #changing column names
+
+complete.tabu <- tabu.initial[complete.cases(tabu.initial$Score),] #removing missing rows
+
+tabu.data <- fill(complete.tabu, `Speaker ID`) #adding Speaker ID for all rows
+tabu.data$Filename <- gsub(".xlsx|TABU_|TAbu_|Tabu_","",tabu.data$Filename) # changing file name to get pair identity
+tabu.data <- separate(tabu.data,Filename,into=c("pair","Participant1","Participant2")) #add pair identity and seperate participant roles
+
+tabu.data$Pass[tabu.data$Score==0] <- 1 #calculating number of passess
+tabu.data$Pass[tabu.data$Score!=0] <- 0
+
+tabu.data$Correct[tabu.data$Score==1] <- 1 #Calculating number of correct guesses
+tabu.data$Correct[tabu.data$Score!=1] <- 0
+
+tabu.data$ForbiddenStop[tabu.data$Score==2] <- 1 # calculating number of forbidden word errors
+tabu.data$ForbiddenStop[tabu.data$Score!=2] <- 0
+
+tabu.data$ForbiddenContinue[tabu.data$Score==3] <- 1 #calculating number of forbidden & cont. errors
+tabu.data$ForbiddenContinue[tabu.data$Score!=3] <- 0
+
+tabu.data$Error[tabu.data$Score=="x"] <- 1 #calculating number of misc. errors
+tabu.data$Error[tabu.data$Score!="x"] <- 0
+
+tabu.data$`Guesser ID`[which(tabu.data$`Speaker ID`==tabu.data$Participant1)] <- tabu.data$Participant2[which(tabu.data$`Speaker ID`==tabu.data$Participant1)] #specifying guesser
+
+tabu.data$`Guesser ID`[which(tabu.data$`Speaker ID`==tabu.data$Participant2)] <- tabu.data$Participant1[which(tabu.data$`Speaker ID`==tabu.data$Participant2)] # specifying guesser
+
+slesi.key <- read.csv("SleSI_Masterkey.csv") #open file containing sleep condition
+
+SpeakerKey <- slesi.key[,c(1,3)] #adding condition information
+colnames(SpeakerKey) <- c("Speaker ID","Speaker_SD") #adding condition information
+GuesserKey <- slesi.key[,c(1,3)] #adding condition information
+colnames(GuesserKey) <- c("Guesser ID","Guesser_SD") #adding condition information
+tabu1 <- join(tabu.data,SpeakerKey) #adding condition information
+tabu2 <- join(tabu1,GuesserKey) #adding condition information
+
+final.tabu <- select(tabu2,
+                     c(pair,
+                       `Guesser ID`,
+                       Guesser_SD,
+                       `Speaker ID`,
+                       Speaker_SD,
+                       Word,
+                       Correct,
+                       Pass,
+                       ForbiddenStop,
+                       ForbiddenContinue)
+                     ) #create final DF with only required columns
+
+# so I need to rethink this (so that each round is summed - so there should be 6 numbers per pair)
+
+tabu_by_rounds <- final.tabu %>% 
+  mutate(round = NA) %>%
+  group_by(pair)
+  
+
+Round_TF <- NA
+for (i in 1:length(final.tabu$`Guesser ID`)) {
+  Round_TF[i] <- if_else(identical(final.tabu$`Guesser ID`[i], final.tabu$`Guesser ID`[i-1]), 0, 1)
+}
+
+tabu_with_rounds_step1 <- cbind(final.tabu, Tabu_Round = Round_TF)
+
+Tabu_with_rounds <- tabu_with_rounds_step1 %>%
+  group_by(pair) %>% 
+  mutate(Round = cumsum(Tabu_Round)) %>%
+  group_by(pair,Round) %>%
+  summarise(Correct = sum(Correct), 
+            Guesser_ID = mean(as.numeric(`Guesser ID`)), 
+            Guesser_SD = mean(as.numeric(Guesser_SD)),
+            Speaker_ID = mean(as.numeric(`Speaker ID`)), 
+            Speaker_SD = mean(as.numeric(Speaker_SD)),
+            total_attempts = sum(Correct,Pass,ForbiddenContinue,ForbiddenContinue))
+Tabu_with_rounds <- as.data.frame(Tabu_with_rounds)
+
+Tabu_with_rounds <- Tabu_with_rounds[which(Tabu_with_rounds$pair != 97),] #removing pair with person under 18 years old. 
+
+Tabu_with_rounds$Score_ratio <- Tabu_with_rounds$Correct/Tabu_with_rounds$total_attempts #3rd outcome variable
+
+
+```
+
+#Descriptive statistics
+```{r}
+Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD == 0 & Tabu_with_rounds$Speaker_SD == 0),] %>% summarise_all(mean) %>% print.data.frame()
+Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD == 0 & Tabu_with_rounds$Speaker_SD == 0),] %>% summarise_all(sd) %>% print.data.frame()
+
+Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD != Tabu_with_rounds$Speaker_SD),] %>% summarise_all(mean) %>% print.data.frame()
+Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD != Tabu_with_rounds$Speaker_SD),] %>% summarise_all(sd) %>% print.data.frame()
+
+Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD  == 1 & Tabu_with_rounds$Speaker_SD == 1),] %>% summarise_all(mean) %>% print.data.frame()
+Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD  == 1 & Tabu_with_rounds$Speaker_SD == 1),] %>% summarise_all(sd) %>% print.data.frame()
+```
+
+
+#Analysis for Round score
+```{r}
+#Setting the priors
+priors_tabu = c(set_prior("normal(0,1.5)", class = "b"))
+
+#what is an estimat here: It is the estimated amount by which the log odds of the DV (score) would increase if IV (Sleepdep) were one unit higher.
+
+# Building the model
+tabu.intercept.model <- brm(Correct ~ 1 + (1|pair), Tabu_with_rounds, sample_prior = T, cores = 4,family = poisson())
+
+tabu.Speaker.model <- brm(Correct ~ Speaker_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
+
+tabu.guesser.model <- brm(Correct ~ Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
+
+tabu.both.model <- brm(Correct~ Speaker_SD+Guesser_SD + (1|pair) + (1|Guesser_ID) + (1|Speaker_ID), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
+
+tabu.interaction.model <- brm(Correct ~ Speaker_SD*Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
+
+##### model comparison
+tabu.model1.waic <- WAIC(tabu.intercept.model) #best model
+tabu.model2.waic <- WAIC(tabu.Speaker.model)
+tabu.model3.waic <- WAIC(tabu.guesser.model)
+tabu.model4.waic <- WAIC(tabu.both.model) 
+tabu.model5.waic <- WAIC(tabu.interaction.model)
+compare_ic(tabu.model1.waic,tabu.model2.waic,tabu.model3.waic,tabu.model4.waic,tabu.model5.waic) 
+
+tabu.model1.LOO <- LOO(tabu.intercept.model) #best model
+tabu.model2.LOO <- LOO(tabu.Speaker.model) 
+tabu.model3.LOO <- LOO(tabu.guesser.model)
+tabu.model4.LOO <- LOO(tabu.both.model) 
+tabu.model5.LOO <- LOO(tabu.interaction.model)
+compare_ic(tabu.model1.LOO,tabu.model2.LOO,tabu.model3.LOO,tabu.model4.LOO,tabu.model5.LOO) #same again here
+
+### what about other response distributions?
+
+tabu.cumulative.model <- brm(Correct ~ Speaker_SD+Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = cumulative)
+
+tabu.cumulative.model.waic <- WAIC(tabu.cumulative.model) #poisson is best
+compare_ic(tabu.model4.waic, tabu.cumulative.model.waic)
+
+tabu.both.model <- brm(Correct~ Speaker_SD+Guesser_SD + (1|pair), 
+                       Tabu_with_rounds,
+                       prior=priors_tabu, 
+                       sample_prior = T, 
+                       cores = 4,
+                       family = poisson(),
+                       iter = 1000000)
+
+####best model 
+plot(tabu.both.model)
+pp_check(tabu.both.model)
+tabu.both.model
+
+#hypothesis testing
+
+##HDI
+Taboo.hdi <- hdi(brms::as.mcmc(tabu.both.model), credMass = 0.95)
+hdi.Score_speaker <- Taboo.hdi[,2]
+hdi.Score_guesser <- Taboo.hdi[,3]
+
+##ROPE
+taboo.speaker.mcmc <- as.mcmc(tabu.both.model, pars= "Speaker_SD", combine_chains = T)
+taboo.guesser.mcmc <- as.mcmc(tabu.both.model, pars= "Guesser_SD", combine_chains = T)
+
+plotAreaInROPE(taboo.speaker.mcmc, maxROPEradius = 0.25)
+plotAreaInROPE(taboo.guesser.mcmc, maxROPEradius = 0.26)
+
+## Bayes Factor
+tabu.h0.Speaker <- hypothesis(tabu.both.model, "Speaker_SD = 0"); plot(tabu.h0.Speaker)
+tabu.h0.guesser <- hypothesis(tabu.both.model, "Guesser_SD = 0"); plot(tabu.h0.guesser)
+```
+
+#Analysis for attempts
+```{r}
+tabu.intercept.model2 <- brm(Correct ~ 1 + (1|pair), Tabu_with_rounds, sample_prior = T, cores = 4,family = poisson())
+
+tabu.Speaker.model2 <- brm(total_attempts ~ Speaker_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
+
+tabu.guesser.model2 <- brm(total_attempts ~ Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
+
+tabu.both.model2 <- brm(total_attempts~ Speaker_SD+Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
+
+tabu.interaction.model2 <- brm(total_attempts ~ Speaker_SD*Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
+
+##### model comparison
+tabu.intercept.waic2 <- WAIC(tabu.intercept.model2) #best model
+tabu.speaker.waic2 <- WAIC(tabu.Speaker.model2)
+tabu.guesser.waic <- WAIC(tabu.guesser.model2)
+tabu.both.waic <- WAIC(tabu.both.model2) 
+tabu.interaction.waic <- WAIC(tabu.interaction.model2)
+compare_ic(tabu.intercept.waic2,tabu.speaker.waic2,tabu.guesser.waic,tabu.both.waic,tabu.interaction.waic) 
+
+tabu.model1.LOO <- LOO(tabu.intercept.model) #best model
+tabu.model2.LOO <- LOO(tabu.Speaker.model) 
+tabu.model3.LOO <- LOO(tabu.guesser.model)
+tabu.model4.LOO <- LOO(tabu.both.model) 
+tabu.model5.LOO <- LOO(tabu.interaction.model)
+compare_ic(tabu.model1.LOO,tabu.model2.LOO,tabu.model3.LOO,tabu.model4.LOO,tabu.model5.LOO) #same again here
+```
+
+
+
+
+#Creating tables for the manuscript
+```{r}
+simple_taboo <- data.frame(row.names = "Percentage change",
+                         Speaker_mu = tabu.h0.Speaker$hypothesis$Estimate,
+                         Speaker_HDI_low = hdi.Score_speaker[1],
+                         Speaker_HDI_high = hdi.Score_speaker[2],
+                         Speaker_sigma = tabu.h0.Speaker$hypothesis$Est.Error,
+                         Guesser_mu = tabu.h0.guesser$hypothesis$Estimate,
+                         Guesser_HDI_low = hdi.Score_guesser[1],
+                         Guesser_HDI_high = hdi.Score_guesser[2],
+                         Guesser_sigma = tabu.h0.guesser$hypothesis$Est.Error)
+
+Taboo_table <- round(simple_taboo,2)
+Taboo_APA_table <- cbind(Outcome = row.names(Taboo_table), Taboo_table)
+
+myoriginalwd <- getwd()
+setwd("Tables_and_plots")
+apa.table(data = Taboo_APA_table,
+          level1.header = c("",
+                            "Speaker", 
+                            "Guesser"),
+          level1.colspan = c(1,4,4 ),
+          level2.header = colnames(Taboo_APA_table),
+          number = "1",
+          title = "Bayesian Estimation of word guessing game performance",
+          filename = "Taboo_table.docx",
+          note = "Note. Effects are on the log scale. HDI = Highest Density Interval; Std.dev = residual standard deviation",
+          save = T)$table
+setwd(myoriginalwd)
+```
+
+
+#Creating plots for manuscript
+```{r}
+
+plot(tabu.h0.Speaker)
+plot(tabu.h0.guesser)
+
+
+
+
+Tabu.plot.data <- melt(cbind("Speaker" = tabu.h0.Speaker$samples$H1, 
+                            "Guesser" = tabu.h0.guesser$samples$H1,
+                            "prior" = tabu.h0.guesser$prior_samples$H1))
+
+
+Tabu.plot.option1 <- ggdensity(Tabu.plot.data, x = "value", 
+   rug = F,
+   color = "Var2",
+   fill = "Var2",
+   xlab = "Sleep deprivation effect (log)",
+   xlim = c(-0.5,0.5),
+   add = "mean",
+   palette = c("#E495A5", "#39BEB1","#ABB065")) + 
+  stat_pointintervalh(aes(y = -0.04), 
+                      data = Tabu.plot.data[which(Tabu.plot.data$Var2 == "Speaker"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#E495A5") +
+  stat_pointintervalh(aes(y = -0.05), 
+                      data = Tabu.plot.data[which(Tabu.plot.data$Var2 == "Guesser"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#39BEB1") +
+  annotate("text", label = "80% and 95% HDI", x = 2, y = -0.06, hjust = 0, vjust = 0.3)
+
+
+tabustep1melt <- as.data.frame(cbind("ID" = 1:length(tabu.h0.Speaker$samples$H1),
+                              "Posterior_Speaker" = tabu.h0.Speaker$samples$H1, 
+                            "Posterior_Guesser" = tabu.h0.guesser$samples$H1,
+                            "prior_Speaker" = tabu.h0.Speaker$prior_samples$H1,
+                            "prior_Guesser" = tabu.h0.guesser$prior_samples$H1))
+
+tabu.ggjoy.data <- tabustep1melt %>% 
+  gather(v, value, Posterior_Speaker:prior_Guesser) %>% 
+   arrange(ID) %>% 
+  separate(v, "_", into = c("posteriorPrior", "Role"))
+
+ggplot(tabu.ggjoy.data,aes(x = value, y = as.factor(Role), fill = posteriorPrior)) +
+  geom_density_ridges(scale = 2,alpha = .5,rel_min_height = 0.01) +  
+  labs(x = "Sleep deprivation effect (log)") +
+  theme(axis.title.y=element_blank(),
+        legend.title=element_blank()) + scale_x_continuous(limits=c(-4, 4)) + scale_fill_cyclical(values = c("#E495A5", "#ABB065"), guide = "legend")
+```

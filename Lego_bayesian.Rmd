@@ -1,0 +1,441 @@
+---
+title: "Bayesian Lego"
+author: "Benjamin Holding"
+date: "16/05/2017"
+output: html_document
+---
+#Package Setup
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+ipak <- function(pkg){
+    new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+    if (length(new.pkg)) 
+        install.packages(new.pkg, dependencies = TRUE)
+    sapply(pkg, require, character.only = TRUE)
+} #function to see if package is installed. Will download if not, and then opens it.
+
+packages <- c("brms", "plyr", "dplyr", "data.table", "lubridate", "tidyr", "apaStyle","sjstats", "BEST", "ggridges") #packages that are required
+suppressPackageStartupMessages(ipak(packages))
+
+```
+
+
+```{r Create DF, include=FALSE}
+#Data import and formatting
+#### LEGO DATA
+legodata <- read.csv("Rawdata_Lego.csv") #open raw data file
+
+lego.dyad <- legodata %>% 
+  separate_rows(ID, sep = '_') %>%
+  select(ID, Pair, Time, Correct, Incorrect,Finished_in_time) %>%
+  mutate(ID=as.integer(ID)) #extract correct participant IDs
+
+slesi.key <- read.csv("SleSI_Masterkey.csv") #open file containing sleep condition
+
+lego.key <- left_join(lego.dyad, slesi.key) #join raw data and condition data
+
+randomisering.information <- read.csv("Randomisering.csv") #open data on participant role
+
+lego.nearly.complete <- left_join(lego.key,randomisering.information) #join main DF and role data
+lego.nearly.complete$Time <- as.character(lego.nearly.complete$Time) 
+lego.nearly.complete$Time <- ms(lego.nearly.complete$Time)
+lego.nearly.complete$TimeSec <- as.numeric(as.period(lego.nearly.complete$Time, "sec")) #putting time into a usable format
+
+age.information <- read.csv("Slesi_ID_Age.csv")
+
+lego.complete <- left_join(lego.nearly.complete,age.information)
+
+lego.df <- dcast(setDT(lego.complete), Pair + Correct + Woman + TimeSec ~ Role, value.var = c("Age", "SD")) 
+
+lego.df$efficiency <- lego.df$Correct/lego.df$TimeSec #making efficiency DV
+
+lego.df$Woman <- as.factor(lego.df$Woman)
+lego.df$SD_beskrivare <- as.factor(lego.df$SD_beskrivare)
+lego.df$SD_byggare <- as.factor(lego.df$SD_byggare)
+
+lego.df$efficiency_scaled <- scale(lego.df$efficiency, center = T, scale = T) #scaling efficiency (since it has no understandable natural scale)
+
+legoData_final <- lego.df[which(lego.df$TimeSec < 601)]
+legoData_final <- legoData_final[which(legoData_final$Pair != 97),] #removing pair with person under 18 years old. 
+
+
+```
+
+#Descriptive statistics
+```{r,warning=F}
+#Means (Score, Time & Efficiency) for pairs where both are in the control condition
+legoData_final[which(legoData_final$SD_beskrivare == 0 & legoData_final$SD_byggare == 0),] %>% 
+  summarise(Score_mean=mean(Correct,na.rm=T),Time_mean=mean(TimeSec,na.rm=T),efficiency_mean=mean(efficiency_scaled,na.rm=T))
+
+#Standard deviation (Score, Time & Efficiency) for pairs where both are in the control condition
+legoData_final[which(legoData_final$SD_beskrivare == 0 & legoData_final$SD_byggare == 0),] %>% 
+  summarise(Score_sd=sd(Correct,na.rm=T),Time_sd=sd(TimeSec,na.rm=T),efficiency_sd=sd(efficiency_scaled,na.rm=T))
+
+#Means (Score, Time & Efficiency) for pairs where one of the participants are sleep deprived
+legoData_final[which(legoData_final$SD_beskrivare != legoData_final$SD_byggare),] %>% 
+  summarise(Score_mean=mean(Correct,na.rm=T),Time_mean=mean(TimeSec,na.rm=T),efficiency_mean=mean(efficiency_scaled,na.rm=T))
+
+#Standard deviation (Score, Time & Efficiency) for pairs where one of the participants are sleep deprived
+legoData_final[which(legoData_final$SD_beskrivare != legoData_final$SD_byggare),] %>% 
+  summarise(Score_sd=sd(Correct,na.rm=T),Time_sd=sd(TimeSec,na.rm=T),efficiency_sd=sd(efficiency_scaled,na.rm=T))
+
+#Means (Score, Time & Efficiency) for pairs where both partiicpants are sleep deprived
+legoData_final[which(legoData_final$SD_beskrivare == 1 & legoData_final$SD_byggare == 1),]  %>% 
+  summarise(Score_mean=mean(Correct,na.rm=T),Time_mean=mean(TimeSec,na.rm=T),efficiency_mean=mean(efficiency_scaled,na.rm=T))
+#Standard deviation (Score, Time & Efficiency) for pairs where both partiicpants are sleep deprived
+legoData_final[which(legoData_final$SD_beskrivare == 1 & legoData_final$SD_byggare == 1),]  %>% 
+  summarise(Score_sd=sd(Correct,na.rm=T),Time_sd=sd(TimeSec,na.rm=T),efficiency_sd=sd(efficiency_scaled,na.rm=T))
+```
+
+#Inferential statistics
+## Model building task
+###SCORE
+```{r SCORE, cache = TRUE}
+#set the priors
+priors_score = c(set_prior("normal(0,2.25)", class = "b", lb = -9, ub = 9))
+
+#Bayesian linear models (adding 1 coefficient at a time)
+brms.intercept.model <- brm(Correct ~ 1, legoData_final,sample_prior = T, cores = 4)
+brms.Beskrivare.model <- brm(Correct ~ SD_beskrivare, legoData_final,prior=priors_score, sample_prior = T, cores = 4)
+brms.Byggare.model <- brm(Correct ~ SD_byggare, legoData_final,prior=priors_score, sample_prior = T, cores = 4)
+brms.BB.model <- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_score, sample_prior = T, cores = 4)
+brms.interaction.model <- brm(Correct ~ SD_beskrivare*SD_byggare, legoData_final,prior=priors_score, sample_prior = T, cores = 4)
+
+#model comparison
+model1.waic <- WAIC(brms.intercept.model)
+model2.waic <- WAIC(brms.Beskrivare.model)
+model3.waic <- WAIC(brms.BB.model) 
+model4.waic <- WAIC(brms.interaction.model)
+modelbyggare.waic <- WAIC(brms.Byggare.model)
+compare_ic(model1.waic,model2.waic,modelbyggare.waic,model3.waic,model4.waic)
+
+model1.loo <- LOO(brms.intercept.model)
+model2.loo <- LOO(brms.Beskrivare.model)
+model3.loo <- LOO(brms.BB.model) #best fitting model
+model4.loo <- LOO(brms.interaction.model)
+modelbyggare.loo <- LOO(brms.Byggare.model)
+compare_ic(model1.loo,model2.loo,modelbyggare.loo,model3.loo,model4.loo)
+
+#model checking
+plot(brms.BB.model) #seems fine
+pp_check(brms.BB.model) #model isn't taking account of the skewness in the data
+
+#score distribution comparisons
+legoData_final.correctPlus1 <- legoData_final
+legoData_final.correctPlus1$Correct <- legoData_final.correctPlus1$Correct+1 #changing so that score has no zero value
+
+gaussian.model <- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final.correctPlus1,prior=priors_score, sample_prior = T, cores = 4,family = gaussian)
+exgaussian.model <- brms.BB.model <- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final.correctPlus1,prior=priors_score, sample_prior = T, cores = 4,family = exgaussian)
+student.model <- brms.BB.model <- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final.correctPlus1,prior=priors_score, sample_prior = T, cores = 4,family = student)
+hurdle_lognormal.model  <- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final.correctPlus1,prior=priors_score, sample_prior = T, cores = 4,family = hurdle_lognormal)
+cumulative.model <- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final.correctPlus1,prior=priors_score, sample_prior = T, cores = 4,family = cumulative)
+
+gaussian.model.waic <- WAIC(gaussian.model)
+exgaussian.model.waic <- WAIC(exgaussian.model)
+student.model.waic <- WAIC(student.model)
+hurdle_lognormal.waic <- WAIC(hurdle_lognormal.model)
+cumulative.model.waic <- WAIC(cumulative.model) #best fitting distribution
+compare_ic(gaussian.model.waic, exgaussian.model.waic, student.model.waic,hurdle_lognormal.waic, cumulative.model.waic)
+
+gaussian.model.loo <- LOO(gaussian.model)
+exgaussian.model.loo <- LOO(exgaussian.model)
+student.model.loo <- LOO(student.model)
+hurdle_lognormal.loo <- LOO(hurdle_lognormal.model)
+cumulative.model.loo <- LOO(cumulative.model) #best fitting distribution
+compare_ic(gaussian.model.loo, exgaussian.model.loo, student.model.loo,hurdle_lognormal.loo, cumulative.model.loo)
+
+#re-running the model w/ the original data set (not plus 1)
+cumulative.model <- brm(Correct ~ SD_beskrivare+SD_byggare,
+                        data = legoData_final,
+                        prior=priors_score, 
+                        sample_prior = T, 
+                        cores = 4,
+                        family = cumulative,
+                        iter = 1000000)
+
+plot(cumulative.model) #seems fine
+pp_check(cumulative.model) #seems a much better fit
+cumulative.model #run this to check the parameter estimates
+
+#hypothesis testing
+##HDI
+score.hdi <- sjstats::hdi(cumulative.model, prob = 0.95)
+hdi.Score_describer <- score.hdi[10,]
+hdi.Score_builder <- score.hdi[11,]
+```
+
+```{r, eval=FALSE}
+##Bayes Factor
+### For the null
+h0.Beskrivare <- hypothesis(cumulative.model, "SD_beskrivare1 = 0") #Bayes Factor
+h0.Byggare <- hypothesis(cumulative.model, "SD_byggare1 = 0") #Bayes Factor
+
+### the for alternative
+point.h0.Beskrivare.BF10 <- 1/h0.Beskrivare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: describer coefficient
+point.h0.Byggare.BF10 <- 1/h0.Byggare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: builder coefficient
+
+### Directed evidence ratio
+directed.h0.Beskrivare <- hypothesis(cumulative.model, "SD_beskrivare1 < 0") #directed evidence ratio
+directed.h0.Byggare <- hypothesis(cumulative.model, "SD_byggare1 < 0") #directed evidence ratio
+
+##Standardised effect sizes
+describer_ES <-  h0.Beskrivare$hypothesis$Estimate/9 # 0.10
+Builder_ES <- h0.Byggare$hypothesis$Estimate/9 # -0.12
+
+##plots
+plot(h0.Beskrivare)
+plot(h0.Byggare)
+```
+
+### TIME (seconds)
+```{r TIME, cache = TRUE}
+#Set the prior
+priors_TIME = c(set_prior("normal(0,150)", class = "b", lb = -600, ub = 600)) 
+
+#Bayesian linear models (adding 1 coefficient at a time)
+TIME.intercept.model <- brm(TimeSec ~ 1, legoData_final, sample_prior = T, cores = 4)
+TIME.Beskrivare.model <- brm(TimeSec ~ SD_beskrivare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4)
+TIME.Byggare.model <- brm(TimeSec ~ SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4)
+TIME.BB.model <- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4)
+TIME.interaction.model <- brm(TimeSec ~ SD_beskrivare*SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4) 
+
+TIME1.waic <- WAIC(TIME.intercept.model) #best model
+TIME2.waic <- WAIC(TIME.Beskrivare.model)
+TIME3.waic <- WAIC(TIME.Byggare.model)
+TIME4.waic <- WAIC(TIME.BB.model)
+TIME5.waic <- WAIC(TIME.interaction.model)
+compare_ic(TIME1.waic,TIME2.waic,TIME3.waic,TIME4.waic,TIME5.waic) 
+
+TIME1.loo <- LOO(TIME.intercept.model) #best model
+TIME2.loo <- LOO(TIME.Beskrivare.model)
+TIME3.loo <- LOO(TIME.Byggare.model)
+TIME4.loo <- LOO(TIME.BB.model)
+TIME5.loo <- LOO(TIME.interaction.model)
+compare_ic(TIME1.loo,TIME2.loo,TIME3.loo,TIME4.loo,TIME5.loo)
+
+##### checking different distributions
+TIME.gaussian.model <- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = gaussian)
+TIME.exgaussian.model <- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = exgaussian)
+TIME.student.model <- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = student)
+TIME.hurdle_lognormal.model  <- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = hurdle_lognormal)
+TIME.weibull.model <- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = weibull)
+TIME.lognormal.model <- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = lognormal)
+TIME.exponential.model <- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = exponential)
+
+TIME.gaussian.model.waic <- WAIC(TIME.gaussian.model) #best
+TIME.exgaussian.model.waic <- WAIC(TIME.exgaussian.model)
+TIME.student.model.waic <- WAIC(TIME.student.model)
+TIME.hurdle_lognormal.waic <- WAIC(TIME.hurdle_lognormal.model)
+TIME.weibull.model.waic <- WAIC(TIME.weibull.model)
+TIME.lognormal.model.waic <- WAIC(TIME.lognormal.model)
+
+compare_ic(TIME.gaussian.model.waic, TIME.exgaussian.model.waic, TIME.student.model.waic,TIME.hurdle_lognormal.waic,TIME.lognormal.model.waic)
+
+TIME.gaussian.model.LOO <- LOO(TIME.gaussian.model) #best
+TIME.exgaussian.model.LOO <- LOO(TIME.exgaussian.model)
+TIME.student.model.LOO <- LOO(TIME.student.model)
+TIME.hurdle_lognormal.LOO <- LOO(TIME.hurdle_lognormal.model)
+TIME.lognormal.model.LOO <- LOO(TIME.lognormal.model)
+
+compare_ic(TIME.gaussian.model.LOO, TIME.exgaussian.model.LOO, TIME.student.model.LOO,TIME.hurdle_lognormal.LOO,TIME.lognormal.model.LOO) 
+
+##let's check the "best" model - gaussian
+
+plot(TIME.gaussian.model) 
+pp_check(TIME.gaussian.model)
+TIME.gaussian.model
+
+# hypothesis testing
+
+##HDI
+time.hdi <- sjstats::hdi(TIME.gaussian.model, prob = 0.95)
+hdi.Time_describer <- time.hdi[2,]
+hdi.Time_builder <- time.hdi[3,]
+
+```
+
+```{r, eval=FALSE}
+
+## Bayes Factor
+TIME.h0.Beskrivare <- hypothesis(TIME.gaussian.model, "SD_beskrivare1 = 0"); plot(TIME.h0.Beskrivare)
+TIME.h0.Byggare <- hypothesis(TIME.gaussian.model, "SD_byggare1 = 0"); plot(TIME.h0.Byggare)
+
+TIME.h0.Beskrivare.BF10 <- 1/TIME.h0.Beskrivare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: describer coefficient
+TIME.h0.Byggare.BF10 <- 1/TIME.h0.Byggare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: builder coefficient
+
+TIME.directed.h0.Beskrivare <- hypothesis(TIME.gaussian.model, "SD_beskrivare1 < 0") #directed evidence ratio
+TIME.directed.h0.Byggare <- hypothesis(TIME.gaussian.model, "SD_byggare1 < 0") #directed evidence ratio
+```
+
+### EFFICIENCY
+```{r EFFICIENCY, cache = TRUE}
+#setting the priors
+priors_EFF = c(set_prior("normal(0,0.5)", class = "b", lb = -2, ub = 2))
+
+#checking models
+EFF.intercept.model <- brm(efficiency_scaled ~ 1, legoData_final, sample_prior = T, cores = 4)
+EFF.Beskrivare.model <- brm(efficiency_scaled ~ SD_beskrivare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4)
+EFF.Byggare.model <- brm(efficiency_scaled ~ SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4)
+EFF.BB.model <- brm(efficiency_scaled ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4)
+EFF.interaction.model <- brm(efficiency_scaled ~ SD_beskrivare*SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4)
+
+##### model comparison
+EFF.model1.waic <- WAIC(EFF.intercept.model)
+EFF.model2.waic <- WAIC(EFF.Beskrivare.model)
+EFF.model3.waic <- WAIC(EFF.Byggare.model)
+EFF.model4.waic <- WAIC(EFF.BB.model) #best fitting model
+EFF.model5.waic <- WAIC(EFF.interaction.model)
+compare_ic(EFF.model1.waic,EFF.model2.waic,EFF.model3.waic,EFF.model4.waic,EFF.model5.waic)
+
+EFF.model1.LOO <- LOO(EFF.intercept.model)
+EFF.model2.LOO <- LOO(EFF.Beskrivare.model)
+EFF.model3.LOO <- LOO(EFF.Byggare.model)
+EFF.model4.LOO <- LOO(EFF.BB.model) #best fitting model
+EFF.model5.LOO <- LOO(EFF.interaction.model)
+compare_ic(EFF.model1.LOO,EFF.model2.LOO,EFF.model3.LOO,EFF.model4.LOO,EFF.model5.LOO)
+
+##### checking different distributions
+EFF.gaussian.model <- brm(efficiency_scaled ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4,family = gaussian)
+EFF.exgaussian.model <- brm(efficiency_scaled ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4,family = exgaussian)
+EFF.student.model <- brm(efficiency_scaled ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4,family = student)
+
+EFF.gaussian.model.waic <- WAIC(EFF.gaussian.model) 
+EFF.exgaussian.model.waic <- WAIC(EFF.exgaussian.model)
+EFF.student.model.waic <- WAIC(EFF.student.model)
+
+compare_ic(EFF.gaussian.model.waic, EFF.exgaussian.model.waic, EFF.student.model.waic)
+
+EFF.gaussian.model.loo <- LOO(EFF.gaussian.model) 
+EFF.exgaussian.model.loo <- LOO(EFF.exgaussian.model)
+EFF.student.model.loo <- LOO(EFF.student.model)
+
+compare_ic(EFF.gaussian.model.loo, EFF.exgaussian.model.loo, EFF.student.model.loo)
+
+###best model
+
+EFF.BB.model
+plot(EFF.BB.model)
+pp_check(EFF.BB.model)
+
+###hypothesis testing
+
+#HDI
+efficiency.hdi <- sjstats::hdi(EFF.BB.model, prob = 0.95)
+hdi.Efficiency_describer <- efficiency.hdi[2,]
+hdi.Efficiency_builder <- efficiency.hdi[3,]
+```
+
+```{r, eval=FALSE}
+#Bayes Factor
+EFF.h0.Beskrivare <- hypothesis(EFF.BB.model, "SD_beskrivare1 = 0"); plot(EFF.h0.Beskrivare)
+EFF.h0.Byggare <- hypothesis(EFF.BB.model, "SD_byggare1 = 0"); plot(EFF.h0.Byggare)
+
+EFF.Beskrivare.BF10 <- 1/EFF.h0.Beskrivare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: describer coefficient
+EFF.Byggare.BF10 <- 1/EFF.h0.Byggare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: builder coefficient
+
+EFF.directed.h0.Beskrivare <- hypothesis(EFF.BB.model, "SD_beskrivare1 < 0") #directed evidence ratio
+EFF.directed.h0.Byggare <- hypothesis(EFF.BB.model, "SD_byggare1 < 0") #directed evidence ratio
+```
+
+
+```{r, include=FALSE}
+#Creating tables for the manuscript
+simple_Lego_Score <- data.frame(row.names = "Score",
+                         Intercept = h0.Beskrivare$hypothesis$Estimate,
+                         Describer_mu = h0.Beskrivare$hypothesis$Estimate,
+                         Describer_HDI_low = hdi.Score_describer$hdi.low,
+                         Describer_HDI_high = hdi.Score_describer$hdi.high,
+                         Describer_sigma = h0.Beskrivare$hypothesis$Est.Error,
+                         Builder_mu = h0.Byggare$hypothesis$Estimate,
+                         Builder_HDI_low = hdi.Score_builder$hdi.low,
+                         Builder_HDI_high = hdi.Score_builder$hdi.high,
+                         Builder_sigma = h0.Byggare$hypothesis$Est.Error)
+
+simple_Lego_time <- data.frame(row.names = "Time",
+                         Describer_mu = TIME.h0.Beskrivare$hypothesis$Estimate,
+                         Describer_HDI_low = hdi.Time_describer$hdi.low,
+                         Describer_HDI_high = hdi.Time_describer$hdi.high,
+                         Describer_sigma = TIME.h0.Beskrivare$hypothesis$Est.Error,
+                         Builder_mu = TIME.h0.Byggare$hypothesis$Estimate,
+                         Builder_HDI_low = hdi.Time_builder$hdi.low,
+                         Builder_HDI_high = hdi.Time_builder$hdi.high,
+                         Builder_sigma = TIME.h0.Byggare$hypothesis$Est.Error)
+
+simple_Lego_efficiency <- data.frame(row.names = "Efficiency",
+                         Describer_mu = EFF.h0.Beskrivare$hypothesis$Estimate,
+                         Describer_HDI_low = hdi.Efficiency_describer$hdi.low,
+                         Describer_HDI_high = hdi.Efficiency_describer$hdi.high,
+                         Describer_sigma = EFF.h0.Beskrivare$hypothesis$Est.Error,
+                         Builder_mu = EFF.h0.Byggare$hypothesis$Estimate,
+                         Builder_HDI_low = hdi.Efficiency_builder$hdi.low,
+                         Builder_HDI_high = hdi.Efficiency_builder$hdi.high,
+                         Builder_sigma = EFF.h0.Byggare$hypothesis$Est.Error)
+
+  
+Lego_table <- rbind(simple_Lego_Score, simple_Lego_time, simple_Lego_efficiency)
+Lego_table <- round(Lego_table,2)
+Lego_APA_table <- cbind(Outcome = row.names(Lego_table), Lego_table)
+
+myoriginalwd <- getwd()
+setwd("Tables_and_plots")
+apa.table(data = Lego_APA_table,
+          level1.header = c("",
+                            "Describer", 
+                            "Builder"),
+          level1.colspan = c(1,4,4 ),
+          level2.header = colnames(Lego_APA_table),
+          number = "1",
+          title = "Bayesian Estimation of model building performance",
+          filename = "Lego_table.docx",
+          note = "Note. HDI = Highest Density Interval; Std.dev = residual standard deviation",
+          save = T)$table
+setwd(myoriginalwd)
+
+```
+
+```{r, include=FALSE}
+#Creating plots for manuscript
+plot(h0.Beskrivare)
+plot(h0.Byggare)
+
+
+LEGO.plot.data <- melt(cbind("Builder" = h0.Byggare$samples$H1, 
+                            "Describer" = h0.Beskrivare$samples$H1,
+                            "prior" = h0.Beskrivare$prior_samples$H1))
+
+
+Lego.plot.option1 <- ggdensity(LEGO.plot.data, x = "value", 
+   rug = F,
+   color = "Var2",
+   fill = "Var2",
+   xlab = "Sleep deprivation effect",
+   xlim = c(-3,5),
+   add = "mean",
+   palette = c("#E495A5", "#39BEB1","#ABB065")) + 
+  stat_pointintervalh(aes(y = -0.04), 
+                      data = LEGO.plot.data[which(LEGO.plot.data$Var2 == "Builder"),], fun.data = mean_hdih, .prob = c(.95), color = "#E495A5") +
+  stat_pointintervalh(aes(y = -0.05), 
+                      data = LEGO.plot.data[which(LEGO.plot.data$Var2 == "Describer"),], fun.data = mean_hdih, .prob = c(.95), color = "#39BEB1") +
+  annotate("text", label = "95% HDI", x = 2, y = -0.06, hjust = 0, vjust = 0.3)
+
+##############
+
+step1melt <- as.data.frame(cbind("ID" = 1:length(h0.Byggare$samples$H1),
+                              "Posterior_Builder" = h0.Byggare$samples$H1, 
+                            "Posterior_Describer" = h0.Beskrivare$samples$H1,
+                            "prior_Builder" = h0.Byggare$prior_samples$H1,
+                            "prior_Describer" = h0.Beskrivare$prior_samples$H1))
+
+lego.ggjoy.data <- step1melt %>% 
+  gather(v, value, Posterior_Builder:prior_Describer) %>% 
+   arrange(ID) %>% 
+  separate(v, "_", into = c("posteriorPrior", "Role"))
+
+
+ggplot(lego.ggjoy.data,aes(x = value, y = as.factor(Role), fill = posteriorPrior)) +
+  geom_density_ridges(scale = 2,alpha = .5,rel_min_height = 0.01) +  
+  labs(x = "Sleep deprivation effect (unstandardised)") +
+  theme(axis.title.y=element_blank(),
+        legend.title=element_blank()) + scale_x_continuous(limits=c(-5, 5)) + scale_fill_cyclical(values = c("#E495A5", "#ABB065"), guide = "legend")
+```

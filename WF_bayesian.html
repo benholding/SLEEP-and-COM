@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Benjamin Holding" />
+
+<meta name="date" content="2017-12-06" />
+
+<title>Verbal Fluency</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-1.1/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Sleep & Communication</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="WF_bayesian.html">Verbal Fluency</a>
+</li>
+<li>
+  <a href="WorkingMemory.html">Model Building</a>
+</li>
+<li>
+  <a href="Short-term_memory.html">Taboo</a>
+</li>
+<li>
+  <a href="Maths.html">Sociometric badge</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Verbal Fluency</h1>
+<h4 class="author"><em>Benjamin Holding</em></h4>
+<h4 class="date"><em>12/06/2017</em></h4>
+
+</div>
+
+
+<div id="descriptive-statistics" class="section level1">
+<h1>Descriptive statistics</h1>
+<pre class="r"><code>#Mean and standard deviations for FAS score
+VF.complete %&gt;% group_by(SD) %&gt;% summarise(mean(Score.FAS), sd(Score.FAS)) %&gt;% print.data.frame()</code></pre>
+<pre><code>##   SD mean(Score.FAS) sd(Score.FAS)
+## 1  0        37.76404      10.95655
+## 2  1        40.68889      11.42110</code></pre>
+<pre class="r"><code>#Mean and standard deviations for FAS errors
+VF.complete %&gt;% group_by(SD) %&gt;% summarise(mean(Rejected.FAS.1), sd(Rejected.FAS.1))%&gt;% print.data.frame()</code></pre>
+<pre><code>##   SD mean(Rejected.FAS.1) sd(Rejected.FAS.1)
+## 1  0             2.685393           3.291157
+## 2  1             2.088889           2.286474</code></pre>
+<pre class="r"><code>#Mean and standard deviations for VERB score
+VF.complete %&gt;% group_by(SD) %&gt;% summarise(mean(Score.VERBS), sd(Score.VERBS)) %&gt;% print.data.frame()</code></pre>
+<pre><code>##   SD mean(Score.VERBS) sd(Score.VERBS)
+## 1  0          18.95506        5.844403
+## 2  1          19.01111        6.667874</code></pre>
+<pre class="r"><code>#Mean and standard deviations for VERB errors
+VF.complete %&gt;% group_by(SD) %&gt;% summarise(mean(Rejected.VERBS), sd(Rejected.VERBS))%&gt;% print.data.frame()</code></pre>
+<pre><code>##   SD mean(Rejected.VERBS) sd(Rejected.VERBS)
+## 1  0             1.348315           1.045566
+## 2  1             1.233333           1.071070</code></pre>
+</div>
+<div id="inferential-statistics" class="section level1">
+<h1>Inferential statistics</h1>
+<div id="fas-swedish-letter-task" class="section level2">
+<h2>FAS Swedish Letter Task</h2>
+<pre class="r"><code>#Priors
+##setting only population mean and SD, others are default non-informative
+FAS.priors &lt;- list(muM = 42, muSD = 21) #priors based on &quot;Swedish norms for word fluency tests: FAS, animals and verbs&quot;
+
+#Running the bayesian &#39;t-test&#39;
+FAS_best &lt;- BESTmcmc(VF.complete$Score.FAS[VF.complete$SD ==1], 
+                     VF.complete$Score.FAS[VF.complete$SD ==0], 
+                     priors = FAS.priors,
+                     parallel = T)</code></pre>
+<pre><code>## Waiting for parallel processing to complete...done.</code></pre>
+<pre class="r"><code>#Saving just the priors
+FAS_best_priors &lt;- BESTmcmc(VF.complete$Score.FAS[VF.complete$SD ==1], 
+                     VF.complete$Score.FAS[VF.complete$SD ==0], 
+                     priors = FAS.priors,
+                     parallel = T,
+                     doPriorsOnly=T)</code></pre>
+<pre><code>## Warning: The output shows the prior distributions,
+##       NOT the posterior distributions for your data.</code></pre>
+<pre><code>## Waiting for parallel processing to complete...done.</code></pre>
+<pre class="r"><code>#Checking the output
+FAS.summary &lt;- summary(FAS_best)
+FAS.summary</code></pre>
+<pre><code>##             mean median   mode HDI%   HDIlo  HDIup compVal %&gt;compVal
+## mu1       40.555 40.551 40.579   95 38.1798 43.012                  
+## mu2       37.720 37.718 37.729   95 35.4000 39.964                  
+## muDiff     2.834  2.835  2.806   95 -0.4452  6.182       0      95.2
+## sigma1    11.214 11.166 11.033   95  9.4148 13.121                  
+## sigma2    10.578 10.538 10.367   95  8.7689 12.450                  
+## sigmaDiff  0.635  0.636  0.633   95 -1.8030  3.124       0      69.6
+## nu        38.483 29.944 14.883   95  4.1557 97.661                  
+## log10nu    1.473  1.476  1.502   95  0.8643  2.066                  
+## effSz      0.260  0.260  0.261   95 -0.0402  0.568       0      95.2</code></pre>
+<pre class="r"><code>#######################ERRORS########################
+FAS_best_errors &lt;- BESTmcmc(VF.complete$Rejected.FAS.1[VF.complete$SD ==1], 
+                     VF.complete$Rejected.FAS.1[VF.complete$SD ==0],
+                     parallel = T)</code></pre>
+<pre><code>## Waiting for parallel processing to complete...done.</code></pre>
+<pre class="r"><code>FAS_errors.summary &lt;- summary(FAS_best_errors)
+FAS_errors.summary</code></pre>
+<pre><code>##              mean  median    mode HDI%  HDIlo HDIup compVal %&gt;compVal
+## mu1        1.4270  1.4214  1.4093   95  1.035 1.835                  
+## mu2        1.5411  1.5299  1.4922   95  1.109 2.001                  
+## muDiff    -0.1141 -0.1120 -0.1352   95 -0.681 0.439       0      34.6
+## sigma1     1.3740  1.3643  1.3439   95  1.014 1.734                  
+## sigma2     1.5207  1.5047  1.5122   95  1.061 2.007                  
+## sigmaDiff -0.1467 -0.1413 -0.1440   95 -0.672 0.345       0      28.7
+## nu         2.2130  2.1319  1.9840   95  1.332 3.272                  
+## log10nu    0.3337  0.3288  0.3217   95  0.146 0.528                  
+## effSz     -0.0772 -0.0777 -0.0885   95 -0.473 0.297       0      34.6</code></pre>
+</div>
+<div id="swedish-verb-task" class="section level2">
+<h2>Swedish Verb Task</h2>
+<pre class="r"><code>#Priors
+##setting only population mean and SD, others are default non-informative
+Verbs.priors &lt;- list(muM = 20, muSD = 10) #priors based on &quot;Swedish norms for word fluency tests: FAS, animals and verbs&quot;
+
+#Running the bayesian &#39;t-test&#39;
+Verb_best &lt;- BESTmcmc(VF.complete$Score.VERBS[VF.complete$SD ==1],
+                      VF.complete$Score.VERBS[VF.complete$SD ==0],
+                      priors = Verbs.priors,
+                      parallel = T)</code></pre>
+<pre><code>## Waiting for parallel processing to complete...done.</code></pre>
+<pre class="r"><code>VERB_best_priors &lt;- BESTmcmc(VF.complete$Score.VERBS[VF.complete$SD ==1],
+                      VF.complete$Score.VERBS[VF.complete$SD ==0],
+                      priors = Verbs.priors,
+                      parallel = T,
+                     doPriorsOnly=T)</code></pre>
+<pre><code>## Warning: The output shows the prior distributions,
+##       NOT the posterior distributions for your data.</code></pre>
+<pre><code>## Waiting for parallel processing to complete...done.</code></pre>
+<pre class="r"><code>#Checking the output
+Verb.summary &lt;- summary(Verb_best)
+Verb.summary</code></pre>
+<pre><code>##              mean  median    mode HDI%  HDIlo  HDIup compVal %&gt;compVal
+## mu1       18.7211 18.7184 18.7538   95 17.346 20.078                  
+## mu2       19.0628 19.0626 19.0495   95 17.833 20.266                  
+## muDiff    -0.3418 -0.3451 -0.2758   95 -2.167  1.506       0      35.7
+## sigma1     6.0685  6.0546  6.0012   95  4.868  7.282                  
+## sigma2     5.4368  5.4206  5.3724   95  4.421  6.503                  
+## sigmaDiff  0.6317  0.6289  0.6530   95 -0.730  2.014       0      81.9
+## nu        20.0069 13.5478  7.9310   95  2.948 57.843                  
+## log10nu    1.1725  1.1319  1.0387   95  0.620  1.813                  
+## effSz     -0.0615 -0.0599 -0.0484   95 -0.386  0.256       0      35.7</code></pre>
+<pre class="r"><code>###########################ERRORS##########################
+VERB_best_errors &lt;- BESTmcmc(VF.complete$Rejected.VERBS[VF.complete$SD ==1], 
+                     VF.complete$Rejected.VERBS[VF.complete$SD ==0],
+                     parallel = T)</code></pre>
+<pre><code>## Waiting for parallel processing to complete...done.</code></pre>
+<pre class="r"><code>VERB_errors.summary &lt;- summary(VERB_best_errors)
+VERB_errors.summary</code></pre>
+<pre><code>##              mean  median    mode HDI%  HDIlo  HDIup compVal %&gt;compVal
+## mu1        1.1682  1.1675  1.1716   95  0.952  1.386                  
+## mu2        1.3143  1.3143  1.3104   95  1.110  1.517                  
+## muDiff    -0.1461 -0.1465 -0.1607   95 -0.442  0.156       0      16.8
+## sigma1     0.9362  0.9323  0.9336   95  0.762  1.114                  
+## sigma2     0.8905  0.8858  0.8744   95  0.726  1.068                  
+## sigmaDiff  0.0457  0.0454  0.0501   95 -0.177  0.270       0      65.9
+## nu        10.6670  8.7679  6.9510   95  3.217 22.288                  
+## log10nu    0.9677  0.9429  0.8884   95  0.595  1.392                  
+## effSz     -0.1616 -0.1605 -0.1720   95 -0.491  0.168       0      16.8</code></pre>
+</div>
+</div>
+<div id="creating-plots-for-manuscript" class="section level1">
+<h1>Creating plots for manuscript</h1>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

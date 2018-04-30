@@ -4,8 +4,9 @@ author: "Benjamin Holding"
 date: "16/05/2017"
 output: html_document
 ---
-#Package Setup
+
 ```{r setup, include=FALSE}
+#Package Setup
 knitr::opts_chunk$set(echo = TRUE)
 
 ipak <- function(pkg){
@@ -15,7 +16,7 @@ ipak <- function(pkg){
     sapply(pkg, require, character.only = TRUE)
 } #function to see if package is installed. Will download if not, and then opens it.
 
-packages <- c("brms", "plyr", "dplyr", "data.table", "lubridate", "tidyr", "apaStyle","sjstats", "BEST", "ggridges") #packages that are required
+packages <- c("brms", "plyr", "dplyr", "data.table", "lubridate", "tidyr", "apaStyle","sjstats", "BEST", "ggridges", "ggpubr", "tidybayes") #packages that are required
 suppressPackageStartupMessages(ipak(packages))
 
 ```
@@ -161,11 +162,11 @@ cumulative.model #run this to check the parameter estimates
 #hypothesis testing
 ##HDI
 score.hdi <- sjstats::hdi(cumulative.model, prob = 0.95)
-hdi.Score_describer <- score.hdi[10,]
-hdi.Score_builder <- score.hdi[11,]
+hdi.Score_describer <- score.hdi[10,]; hdi.Score_describer
+hdi.Score_builder <- score.hdi[11,]; hdi.Score_builder
 ```
 
-```{r, eval=FALSE}
+```{r}
 ##Bayes Factor
 ### For the null
 h0.Beskrivare <- hypothesis(cumulative.model, "SD_beskrivare1 = 0") #Bayes Factor
@@ -250,12 +251,12 @@ TIME.gaussian.model
 
 ##HDI
 time.hdi <- sjstats::hdi(TIME.gaussian.model, prob = 0.95)
-hdi.Time_describer <- time.hdi[2,]
-hdi.Time_builder <- time.hdi[3,]
+hdi.Time_describer <- time.hdi[2,]; hdi.Time_describer
+hdi.Time_builder <- time.hdi[3,]; hdi.Time_builder
 
 ```
 
-```{r, eval=FALSE}
+```{r}
 
 ## Bayes Factor
 TIME.h0.Beskrivare <- hypothesis(TIME.gaussian.model, "SD_beskrivare1 = 0"); plot(TIME.h0.Beskrivare)
@@ -322,11 +323,11 @@ pp_check(EFF.BB.model)
 
 #HDI
 efficiency.hdi <- sjstats::hdi(EFF.BB.model, prob = 0.95)
-hdi.Efficiency_describer <- efficiency.hdi[2,]
-hdi.Efficiency_builder <- efficiency.hdi[3,]
+hdi.Efficiency_describer <- efficiency.hdi[2,]; hdi.Efficiency_describer
+hdi.Efficiency_builder <- efficiency.hdi[3,]; hdi.Efficiency_builder
 ```
 
-```{r, eval=FALSE}
+```{r}
 #Bayes Factor
 EFF.h0.Beskrivare <- hypothesis(EFF.BB.model, "SD_beskrivare1 = 0"); plot(EFF.h0.Beskrivare)
 EFF.h0.Byggare <- hypothesis(EFF.BB.model, "SD_byggare1 = 0"); plot(EFF.h0.Byggare)
@@ -342,7 +343,6 @@ EFF.directed.h0.Byggare <- hypothesis(EFF.BB.model, "SD_byggare1 < 0") #directed
 ```{r, include=FALSE}
 #Creating tables for the manuscript
 simple_Lego_Score <- data.frame(row.names = "Score",
-                         Intercept = h0.Beskrivare$hypothesis$Estimate,
                          Describer_mu = h0.Beskrivare$hypothesis$Estimate,
                          Describer_HDI_low = hdi.Score_describer$hdi.low,
                          Describer_HDI_high = hdi.Score_describer$hdi.high,

@@ -183,7 +183,7 @@ $(document).ready(function () {
   <a href="WF_bayesian.html">Verbal Fluency</a>
 </li>
 <li>
-  <a href="WorkingMemory.html">Model Building</a>
+  <a href="Lego_bayesian.html">Model Building</a>
 </li>
 <li>
   <a href="Short-term_memory.html">Taboo</a>
@@ -213,9 +213,6 @@ $(document).ready(function () {
 </div>
 
 
-<div id="package-setup" class="section level1">
-<h1>Package Setup</h1>
-</div>
 <div id="descriptive-statistics" class="section level1">
 <h1>Descriptive statistics</h1>
 <pre class="r"><code>#Means (Score, Time &amp; Efficiency) for pairs where both are in the control condition
@@ -435,20 +432,38 @@ cumulative.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare,
 <pre class="r"><code>#hypothesis testing
 ##HDI
 score.hdi &lt;- sjstats::hdi(cumulative.model, prob = 0.95)
-hdi.Score_describer &lt;- score.hdi[10,]
-hdi.Score_builder &lt;- score.hdi[11,]</code></pre>
-<pre class="r"><code>#print Score 95% HDI
-##HDI
-hdi.Score_describer</code></pre>
+hdi.Score_describer &lt;- score.hdi[10,]; hdi.Score_describer</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   term             hdi.low hdi.high
 ##   &lt;chr&gt;              &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 b_SD_beskrivare1  0.0684     1.67</code></pre>
-<pre class="r"><code>hdi.Score_builder</code></pre>
+<pre class="r"><code>hdi.Score_builder &lt;- score.hdi[11,]; hdi.Score_builder</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   term          hdi.low hdi.high
 ##   &lt;chr&gt;           &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 b_SD_byggare1   -1.97   -0.338</code></pre>
+<pre class="r"><code>##Bayes Factor
+### For the null
+h0.Beskrivare &lt;- hypothesis(cumulative.model, &quot;SD_beskrivare1 = 0&quot;) #Bayes Factor
+h0.Byggare &lt;- hypothesis(cumulative.model, &quot;SD_byggare1 = 0&quot;) #Bayes Factor
+
+### the for alternative
+point.h0.Beskrivare.BF10 &lt;- 1/h0.Beskrivare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: describer coefficient
+point.h0.Byggare.BF10 &lt;- 1/h0.Byggare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: builder coefficient
+
+### Directed evidence ratio
+directed.h0.Beskrivare &lt;- hypothesis(cumulative.model, &quot;SD_beskrivare1 &lt; 0&quot;) #directed evidence ratio
+directed.h0.Byggare &lt;- hypothesis(cumulative.model, &quot;SD_byggare1 &lt; 0&quot;) #directed evidence ratio
+
+##Standardised effect sizes
+describer_ES &lt;-  h0.Beskrivare$hypothesis$Estimate/9 # 0.10
+Builder_ES &lt;- h0.Byggare$hypothesis$Estimate/9 # -0.12
+
+##plots
+plot(h0.Beskrivare)</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre class="r"><code>plot(h0.Byggare)</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
 </div>
 <div id="time-seconds" class="section level3">
 <h3>TIME (seconds)</h3>
@@ -629,20 +644,26 @@ plot(TIME.gaussian.model) </code></pre>
 
 ##HDI
 time.hdi &lt;- sjstats::hdi(TIME.gaussian.model, prob = 0.95)
-hdi.Time_describer &lt;- time.hdi[2,]
-hdi.Time_builder &lt;- time.hdi[3,]</code></pre>
-<pre class="r"><code>#print Time 95% HDI
-##HDI
-hdi.Time_describer</code></pre>
+hdi.Time_describer &lt;- time.hdi[2,]; hdi.Time_describer</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   term             hdi.low hdi.high
 ##   &lt;chr&gt;              &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 b_SD_beskrivare1   -48.6     36.0</code></pre>
-<pre class="r"><code>hdi.Time_builder</code></pre>
+<pre class="r"><code>hdi.Time_builder &lt;- time.hdi[3,]; hdi.Time_builder</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   term          hdi.low hdi.high
 ##   &lt;chr&gt;           &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 b_SD_byggare1   -27.4     54.2</code></pre>
+<pre class="r"><code>## Bayes Factor
+TIME.h0.Beskrivare &lt;- hypothesis(TIME.gaussian.model, &quot;SD_beskrivare1 = 0&quot;); plot(TIME.h0.Beskrivare)</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre class="r"><code>TIME.h0.Byggare &lt;- hypothesis(TIME.gaussian.model, &quot;SD_byggare1 = 0&quot;); plot(TIME.h0.Byggare)</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+<pre class="r"><code>TIME.h0.Beskrivare.BF10 &lt;- 1/TIME.h0.Beskrivare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: describer coefficient
+TIME.h0.Byggare.BF10 &lt;- 1/TIME.h0.Byggare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: builder coefficient
+
+TIME.directed.h0.Beskrivare &lt;- hypothesis(TIME.gaussian.model, &quot;SD_beskrivare1 &lt; 0&quot;) #directed evidence ratio
+TIME.directed.h0.Byggare &lt;- hypothesis(TIME.gaussian.model, &quot;SD_byggare1 &lt; 0&quot;) #directed evidence ratio</code></pre>
 </div>
 <div id="efficiency" class="section level3">
 <h3>EFFICIENCY</h3>
@@ -776,22 +797,29 @@ EFF.BB.model</code></pre>
 <pre><code>## Using 10 posterior samples for ppc type &#39;dens_overlay&#39; by default.</code></pre>
 <p><img src="Lego_bayesian_files/figure-html/EFFICIENCY-2.png" width="672" /></p>
 <pre class="r"><code>###hypothesis testing
+
 #HDI
 efficiency.hdi &lt;- sjstats::hdi(EFF.BB.model, prob = 0.95)
-hdi.Efficiency_describer &lt;- efficiency.hdi[2,]
-hdi.Efficiency_builder &lt;- efficiency.hdi[3,]</code></pre>
-<pre class="r"><code>#print efficiency 95% HDI
-##HDI
-hdi.Efficiency_describer</code></pre>
+hdi.Efficiency_describer &lt;- efficiency.hdi[2,]; hdi.Efficiency_describer</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   term             hdi.low hdi.high
 ##   &lt;chr&gt;              &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 b_SD_beskrivare1 -0.0756    0.689</code></pre>
-<pre class="r"><code>hdi.Efficiency_builder</code></pre>
+<pre class="r"><code>hdi.Efficiency_builder &lt;- efficiency.hdi[3,]; hdi.Efficiency_builder</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   term          hdi.low hdi.high
 ##   &lt;chr&gt;           &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 b_SD_byggare1  -0.791  -0.0458</code></pre>
+<pre class="r"><code>#Bayes Factor
+EFF.h0.Beskrivare &lt;- hypothesis(EFF.BB.model, &quot;SD_beskrivare1 = 0&quot;); plot(EFF.h0.Beskrivare)</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>EFF.h0.Byggare &lt;- hypothesis(EFF.BB.model, &quot;SD_byggare1 = 0&quot;); plot(EFF.h0.Byggare)</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
+<pre class="r"><code>EFF.Beskrivare.BF10 &lt;- 1/EFF.h0.Beskrivare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: describer coefficient
+EFF.Byggare.BF10 &lt;- 1/EFF.h0.Byggare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: builder coefficient
+
+EFF.directed.h0.Beskrivare &lt;- hypothesis(EFF.BB.model, &quot;SD_beskrivare1 &lt; 0&quot;) #directed evidence ratio
+EFF.directed.h0.Byggare &lt;- hypothesis(EFF.BB.model, &quot;SD_byggare1 &lt; 0&quot;) #directed evidence ratio</code></pre>
 </div>
 </div>
 </div>

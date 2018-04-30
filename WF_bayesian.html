@@ -9,7 +9,7 @@
 <meta name="generator" content="pandoc" />
 
 
-<meta name="author" content="Benjamin Holding" />
+<meta name="author" content="Benjamin C. Holding" />
 
 <meta name="date" content="2017-12-06" />
 
@@ -208,7 +208,7 @@ $(document).ready(function () {
 
 
 <h1 class="title toc-ignore">Verbal Fluency</h1>
-<h4 class="author"><em>Benjamin Holding</em></h4>
+<h4 class="author"><em>Benjamin C. Holding</em></h4>
 <h4 class="date"><em>12/06/2017</em></h4>
 
 </div>
@@ -264,15 +264,15 @@ FAS_best_priors &lt;- BESTmcmc(VF.complete$Score.FAS[VF.complete$SD ==1],
 FAS.summary &lt;- summary(FAS_best)
 FAS.summary</code></pre>
 <pre><code>##             mean median   mode HDI%   HDIlo  HDIup compVal %&gt;compVal
-## mu1       40.555 40.551 40.579   95 38.1798 43.012                  
-## mu2       37.720 37.718 37.729   95 35.4000 39.964                  
-## muDiff     2.834  2.835  2.806   95 -0.4452  6.182       0      95.2
-## sigma1    11.214 11.166 11.033   95  9.4148 13.121                  
-## sigma2    10.578 10.538 10.367   95  8.7689 12.450                  
-## sigmaDiff  0.635  0.636  0.633   95 -1.8030  3.124       0      69.6
-## nu        38.483 29.944 14.883   95  4.1557 97.661                  
-## log10nu    1.473  1.476  1.502   95  0.8643  2.066                  
-## effSz      0.260  0.260  0.261   95 -0.0402  0.568       0      95.2</code></pre>
+## mu1       40.549 40.549 40.517   95 38.1321 42.995                  
+## mu2       37.713 37.711 37.776   95 35.4043 39.952                  
+## muDiff     2.836  2.835  2.848   95 -0.4520  6.168       0      95.4
+## sigma1    11.206 11.163 11.034   95  9.4181 13.082                  
+## sigma2    10.578 10.545 10.561   95  8.7830 12.423                  
+## sigmaDiff  0.628  0.625  0.616   95 -1.8395  3.038       0      69.5
+## nu        38.525 29.915 14.993   95  4.1040 97.201                  
+## log10nu    1.473  1.476  1.484   95  0.8567  2.057                  
+## effSz      0.261  0.261  0.279   95 -0.0359  0.573       0      95.4</code></pre>
 <pre class="r"><code>#######################ERRORS########################
 FAS_best_errors &lt;- BESTmcmc(VF.complete$Rejected.FAS.1[VF.complete$SD ==1], 
                      VF.complete$Rejected.FAS.1[VF.complete$SD ==0],
@@ -280,16 +280,16 @@ FAS_best_errors &lt;- BESTmcmc(VF.complete$Rejected.FAS.1[VF.complete$SD ==1],
 <pre><code>## Waiting for parallel processing to complete...done.</code></pre>
 <pre class="r"><code>FAS_errors.summary &lt;- summary(FAS_best_errors)
 FAS_errors.summary</code></pre>
-<pre><code>##              mean  median    mode HDI%  HDIlo HDIup compVal %&gt;compVal
-## mu1        1.4270  1.4214  1.4093   95  1.035 1.835                  
-## mu2        1.5411  1.5299  1.4922   95  1.109 2.001                  
-## muDiff    -0.1141 -0.1120 -0.1352   95 -0.681 0.439       0      34.6
-## sigma1     1.3740  1.3643  1.3439   95  1.014 1.734                  
-## sigma2     1.5207  1.5047  1.5122   95  1.061 2.007                  
-## sigmaDiff -0.1467 -0.1413 -0.1440   95 -0.672 0.345       0      28.7
-## nu         2.2130  2.1319  1.9840   95  1.332 3.272                  
-## log10nu    0.3337  0.3288  0.3217   95  0.146 0.528                  
-## effSz     -0.0772 -0.0777 -0.0885   95 -0.473 0.297       0      34.6</code></pre>
+<pre><code>##              mean  median   mode HDI%  HDIlo HDIup compVal %&gt;compVal
+## mu1        1.4284  1.4234  1.398   95  1.030 1.833                  
+## mu2        1.5411  1.5300  1.514   95  1.099 1.984                  
+## muDiff    -0.1126 -0.1102 -0.110   95 -0.678 0.443       0      34.7
+## sigma1     1.3757  1.3663  1.339   95  1.029 1.748                  
+## sigma2     1.5204  1.5039  1.474   95  1.073 2.010                  
+## sigmaDiff -0.1446 -0.1405 -0.132   95 -0.654 0.351       0      28.8
+## nu         2.2179  2.1349  2.014   95  1.336 3.275                  
+## log10nu    0.3346  0.3294  0.318   95  0.147 0.529                  
+## effSz     -0.0764 -0.0762 -0.075   95 -0.460 0.309       0      34.7</code></pre>
 </div>
 <div id="swedish-verb-task" class="section level2">
 <h2>Swedish Verb Task</h2>
@@ -314,16 +314,16 @@ Verb_best &lt;- BESTmcmc(VF.complete$Score.VERBS[VF.complete$SD ==1],
 <pre class="r"><code>#Checking the output
 Verb.summary &lt;- summary(Verb_best)
 Verb.summary</code></pre>
-<pre><code>##              mean  median    mode HDI%  HDIlo  HDIup compVal %&gt;compVal
-## mu1       18.7211 18.7184 18.7538   95 17.346 20.078                  
-## mu2       19.0628 19.0626 19.0495   95 17.833 20.266                  
-## muDiff    -0.3418 -0.3451 -0.2758   95 -2.167  1.506       0      35.7
-## sigma1     6.0685  6.0546  6.0012   95  4.868  7.282                  
-## sigma2     5.4368  5.4206  5.3724   95  4.421  6.503                  
-## sigmaDiff  0.6317  0.6289  0.6530   95 -0.730  2.014       0      81.9
-## nu        20.0069 13.5478  7.9310   95  2.948 57.843                  
-## log10nu    1.1725  1.1319  1.0387   95  0.620  1.813                  
-## effSz     -0.0615 -0.0599 -0.0484   95 -0.386  0.256       0      35.7</code></pre>
+<pre><code>##              mean  median    mode HDI%  HDIlo HDIup compVal %&gt;compVal
+## mu1       18.7207 18.7186 18.7213   95 17.380 20.10                  
+## mu2       19.0611 19.0590 19.0148   95 17.862 20.28                  
+## muDiff    -0.3404 -0.3413 -0.3196   95 -2.162  1.51       0      35.5
+## sigma1     6.0624  6.0467  5.9987   95  4.868  7.28                  
+## sigma2     5.4396  5.4263  5.4164   95  4.409  6.49                  
+## sigmaDiff  0.6228  0.6203  0.6916   95 -0.737  2.00       0      81.7
+## nu        20.2889 13.4368  7.6597   95  2.874 59.76                  
+## log10nu    1.1728  1.1283  1.0270   95  0.615  1.83                  
+## effSz     -0.0613 -0.0594 -0.0544   95 -0.381  0.26       0      35.5</code></pre>
 <pre class="r"><code>###########################ERRORS##########################
 VERB_best_errors &lt;- BESTmcmc(VF.complete$Rejected.VERBS[VF.complete$SD ==1], 
                      VF.complete$Rejected.VERBS[VF.complete$SD ==0],
@@ -332,19 +332,16 @@ VERB_best_errors &lt;- BESTmcmc(VF.complete$Rejected.VERBS[VF.complete$SD ==1],
 <pre class="r"><code>VERB_errors.summary &lt;- summary(VERB_best_errors)
 VERB_errors.summary</code></pre>
 <pre><code>##              mean  median    mode HDI%  HDIlo  HDIup compVal %&gt;compVal
-## mu1        1.1682  1.1675  1.1716   95  0.952  1.386                  
-## mu2        1.3143  1.3143  1.3104   95  1.110  1.517                  
-## muDiff    -0.1461 -0.1465 -0.1607   95 -0.442  0.156       0      16.8
-## sigma1     0.9362  0.9323  0.9336   95  0.762  1.114                  
-## sigma2     0.8905  0.8858  0.8744   95  0.726  1.068                  
-## sigmaDiff  0.0457  0.0454  0.0501   95 -0.177  0.270       0      65.9
-## nu        10.6670  8.7679  6.9510   95  3.217 22.288                  
-## log10nu    0.9677  0.9429  0.8884   95  0.595  1.392                  
-## effSz     -0.1616 -0.1605 -0.1720   95 -0.491  0.168       0      16.8</code></pre>
+## mu1        1.1689  1.1685  1.1726   95  0.954  1.389                  
+## mu2        1.3143  1.3144  1.3143   95  1.106  1.514                  
+## muDiff    -0.1454 -0.1454 -0.1413   95 -0.441  0.154       0      16.8
+## sigma1     0.9370  0.9325  0.9211   95  0.767  1.119                  
+## sigma2     0.8914  0.8866  0.8876   95  0.724  1.065                  
+## sigmaDiff  0.0457  0.0455  0.0488   95 -0.176  0.269       0      65.8
+## nu        10.7431  8.8564  6.8063   95  3.221 22.796                  
+## log10nu    0.9719  0.9473  0.9087   95  0.594  1.391                  
+## effSz     -0.1606 -0.1589 -0.1500   95 -0.490  0.167       0      16.8</code></pre>
 </div>
-</div>
-<div id="creating-plots-for-manuscript" class="section level1">
-<h1>Creating plots for manuscript</h1>
 </div>
 
 

@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Benjamin Holding" />
+
+
+<title>Bayesian Lego</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-1.1/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Sleep & Communication</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="WF_bayesian.html">Verbal Fluency</a>
+</li>
+<li>
+  <a href="WorkingMemory.html">Model Building</a>
+</li>
+<li>
+  <a href="Short-term_memory.html">Taboo</a>
+</li>
+<li>
+  <a href="Maths.html">Sociometric badge</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Bayesian Lego</h1>
+<h4 class="author"><em>Benjamin Holding</em></h4>
+<h4 class="date"><em>16/05/2017</em></h4>
+
+</div>
+
+
+<div id="package-setup" class="section level1">
+<h1>Package Setup</h1>
+</div>
+<div id="descriptive-statistics" class="section level1">
+<h1>Descriptive statistics</h1>
+<pre class="r"><code>#Means (Score, Time &amp; Efficiency) for pairs where both are in the control condition
+legoData_final[which(legoData_final$SD_beskrivare == 0 &amp; legoData_final$SD_byggare == 0),] %&gt;% 
+  summarise(Score_mean=mean(Correct,na.rm=T),Time_mean=mean(TimeSec,na.rm=T),efficiency_mean=mean(efficiency_scaled,na.rm=T))</code></pre>
+<pre><code>##   Score_mean Time_mean efficiency_mean
+## 1        6.5  519.6333       0.1207779</code></pre>
+<pre class="r"><code>#Standard deviation (Score, Time &amp; Efficiency) for pairs where both are in the control condition
+legoData_final[which(legoData_final$SD_beskrivare == 0 &amp; legoData_final$SD_byggare == 0),] %&gt;% 
+  summarise(Score_sd=sd(Correct,na.rm=T),Time_sd=sd(TimeSec,na.rm=T),efficiency_sd=sd(efficiency_scaled,na.rm=T))</code></pre>
+<pre><code>##   Score_sd  Time_sd efficiency_sd
+## 1 2.751175 90.09171     0.9243288</code></pre>
+<pre class="r"><code>#Means (Score, Time &amp; Efficiency) for pairs where one of the participants are sleep deprived
+legoData_final[which(legoData_final$SD_beskrivare != legoData_final$SD_byggare),] %&gt;% 
+  summarise(Score_mean=mean(Correct,na.rm=T),Time_mean=mean(TimeSec,na.rm=T),efficiency_mean=mean(efficiency_scaled,na.rm=T))</code></pre>
+<pre><code>##   Score_mean Time_mean efficiency_mean
+## 1   5.709677  515.0645     -0.06371829</code></pre>
+<pre class="r"><code>#Standard deviation (Score, Time &amp; Efficiency) for pairs where one of the participants are sleep deprived
+legoData_final[which(legoData_final$SD_beskrivare != legoData_final$SD_byggare),] %&gt;% 
+  summarise(Score_sd=sd(Correct,na.rm=T),Time_sd=sd(TimeSec,na.rm=T),efficiency_sd=sd(efficiency_scaled,na.rm=T))</code></pre>
+<pre><code>##   Score_sd Time_sd efficiency_sd
+## 1 3.328599  103.95      1.140321</code></pre>
+<pre class="r"><code>#Means (Score, Time &amp; Efficiency) for pairs where both partiicpants are sleep deprived
+legoData_final[which(legoData_final$SD_beskrivare == 1 &amp; legoData_final$SD_byggare == 1),]  %&gt;% 
+  summarise(Score_mean=mean(Correct,na.rm=T),Time_mean=mean(TimeSec,na.rm=T),efficiency_mean=mean(efficiency_scaled,na.rm=T))</code></pre>
+<pre><code>##   Score_mean Time_mean efficiency_mean
+## 1   6.148148   528.037     0.002686968</code></pre>
+<pre class="r"><code>#Standard deviation (Score, Time &amp; Efficiency) for pairs where both partiicpants are sleep deprived
+legoData_final[which(legoData_final$SD_beskrivare == 1 &amp; legoData_final$SD_byggare == 1),]  %&gt;% 
+  summarise(Score_sd=sd(Correct,na.rm=T),Time_sd=sd(TimeSec,na.rm=T),efficiency_sd=sd(efficiency_scaled,na.rm=T))</code></pre>
+<pre><code>##   Score_sd  Time_sd efficiency_sd
+## 1 2.684768 90.11167     0.9508417</code></pre>
+</div>
+<div id="inferential-statistics" class="section level1">
+<h1>Inferential statistics</h1>
+<div id="model-building-task" class="section level2">
+<h2>Model building task</h2>
+<div id="score" class="section level3">
+<h3>SCORE</h3>
+<pre class="r"><code>#set the priors
+priors_score = c(set_prior(&quot;normal(0,2.25)&quot;, class = &quot;b&quot;, lb = -9, ub = 9))
+
+#Bayesian linear models (adding 1 coefficient at a time)
+brms.intercept.model &lt;- brm(Correct ~ 1, legoData_final,sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Compiling the C++ model</code></pre>
+<pre><code>## Start sampling</code></pre>
+<pre class="r"><code>brms.Beskrivare.model &lt;- brm(Correct ~ SD_beskrivare, legoData_final,prior=priors_score, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>brms.Byggare.model &lt;- brm(Correct ~ SD_byggare, legoData_final,prior=priors_score, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>brms.BB.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_score, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>brms.interaction.model &lt;- brm(Correct ~ SD_beskrivare*SD_byggare, legoData_final,prior=priors_score, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>#model comparison
+model1.waic &lt;- WAIC(brms.intercept.model)
+model2.waic &lt;- WAIC(brms.Beskrivare.model)
+model3.waic &lt;- WAIC(brms.BB.model) 
+model4.waic &lt;- WAIC(brms.interaction.model)
+modelbyggare.waic &lt;- WAIC(brms.Byggare.model)
+compare_ic(model1.waic,model2.waic,modelbyggare.waic,model3.waic,model4.waic)</code></pre>
+<pre><code>##                                                  WAIC    SE
+## brms.intercept.model                           441.91 11.19
+## brms.Beskrivare.model                          442.29 11.40
+## brms.Byggare.model                             439.53 12.00
+## brms.BB.model                                  437.87 13.00
+## brms.interaction.model                         438.31 12.67
+## brms.intercept.model - brms.Beskrivare.model    -0.38  2.40
+## brms.intercept.model - brms.Byggare.model        2.38  3.93
+## brms.intercept.model - brms.BB.model             4.04  5.94
+## brms.intercept.model - brms.interaction.model    3.60  6.06
+## brms.Beskrivare.model - brms.Byggare.model       2.76  4.85
+## brms.Beskrivare.model - brms.BB.model            4.42  5.10
+## brms.Beskrivare.model - brms.interaction.model   3.98  5.20
+## brms.Byggare.model - brms.BB.model               1.66  3.93
+## brms.Byggare.model - brms.interaction.model      1.22  4.19
+## brms.BB.model - brms.interaction.model          -0.44  1.41</code></pre>
+<pre class="r"><code>model1.loo &lt;- LOO(brms.intercept.model)
+model2.loo &lt;- LOO(brms.Beskrivare.model)
+model3.loo &lt;- LOO(brms.BB.model) #best fitting model
+model4.loo &lt;- LOO(brms.interaction.model)
+modelbyggare.loo &lt;- LOO(brms.Byggare.model)
+compare_ic(model1.loo,model2.loo,modelbyggare.loo,model3.loo,model4.loo)</code></pre>
+<pre><code>##                                                 LOOIC    SE
+## brms.intercept.model                           441.91 11.19
+## brms.Beskrivare.model                          442.30 11.40
+## brms.Byggare.model                             439.54 12.00
+## brms.BB.model                                  437.89 13.01
+## brms.interaction.model                         438.35 12.68
+## brms.intercept.model - brms.Beskrivare.model    -0.39  2.40
+## brms.intercept.model - brms.Byggare.model        2.37  3.93
+## brms.intercept.model - brms.BB.model             4.02  5.94
+## brms.intercept.model - brms.interaction.model    3.56  6.06
+## brms.Beskrivare.model - brms.Byggare.model       2.76  4.85
+## brms.Beskrivare.model - brms.BB.model            4.41  5.10
+## brms.Beskrivare.model - brms.interaction.model   3.95  5.20
+## brms.Byggare.model - brms.BB.model               1.65  3.93
+## brms.Byggare.model - brms.interaction.model      1.19  4.19
+## brms.BB.model - brms.interaction.model          -0.46  1.40</code></pre>
+<pre class="r"><code>#model checking
+plot(brms.BB.model) #seems fine</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/SCORE-1.png" width="672" /></p>
+<pre class="r"><code>pp_check(brms.BB.model) #model isn&#39;t taking account of the skewness in the data</code></pre>
+<pre><code>## Using 10 posterior samples for ppc type &#39;dens_overlay&#39; by default.</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/SCORE-2.png" width="672" /></p>
+<pre class="r"><code>#score distribution comparisons
+legoData_final.correctPlus1 &lt;- legoData_final
+legoData_final.correctPlus1$Correct &lt;- legoData_final.correctPlus1$Correct+1 #changing so that score has no zero value
+
+gaussian.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final.correctPlus1,prior=priors_score, sample_prior = T, cores = 4,family = gaussian)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>exgaussian.model &lt;- brms.BB.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final.correctPlus1,prior=priors_score, sample_prior = T, cores = 4,family = exgaussian)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre><code>## Warning: There were 499 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help. See
+## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
+<pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+<pre class="r"><code>student.model &lt;- brms.BB.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final.correctPlus1,prior=priors_score, sample_prior = T, cores = 4,family = student)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>hurdle_lognormal.model  &lt;- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final.correctPlus1,prior=priors_score, sample_prior = T, cores = 4,family = hurdle_lognormal)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>cumulative.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final.correctPlus1,prior=priors_score, sample_prior = T, cores = 4,family = cumulative)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>gaussian.model.waic &lt;- WAIC(gaussian.model)
+exgaussian.model.waic &lt;- WAIC(exgaussian.model)
+student.model.waic &lt;- WAIC(student.model)
+hurdle_lognormal.waic &lt;- WAIC(hurdle_lognormal.model)
+cumulative.model.waic &lt;- WAIC(cumulative.model) #best fitting distribution
+compare_ic(gaussian.model.waic, exgaussian.model.waic, student.model.waic,hurdle_lognormal.waic, cumulative.model.waic)</code></pre>
+<pre><code>##                                             WAIC    SE
+## gaussian.model                            437.89 12.95
+## exgaussian.model                          438.74 12.87
+## student.model                             438.51 13.37
+## hurdle_lognormal.model                    501.34 12.84
+## cumulative.model                          365.54 17.06
+## gaussian.model - exgaussian.model          -0.85  0.15
+## gaussian.model - student.model             -0.63  1.00
+## gaussian.model - hurdle_lognormal.model   -63.46  8.34
+## gaussian.model - cumulative.model          72.35 16.14
+## exgaussian.model - student.model            0.22  1.12
+## exgaussian.model - hurdle_lognormal.model -62.61  8.25
+## exgaussian.model - cumulative.model        73.20 16.11
+## student.model - hurdle_lognormal.model    -62.83  9.25
+## student.model - cumulative.model           72.98 15.85
+## hurdle_lognormal.model - cumulative.model 135.81 21.25</code></pre>
+<pre class="r"><code>gaussian.model.loo &lt;- LOO(gaussian.model)
+exgaussian.model.loo &lt;- LOO(exgaussian.model)
+student.model.loo &lt;- LOO(student.model)
+hurdle_lognormal.loo &lt;- LOO(hurdle_lognormal.model)
+cumulative.model.loo &lt;- LOO(cumulative.model) #best fitting distribution
+compare_ic(gaussian.model.loo, exgaussian.model.loo, student.model.loo,hurdle_lognormal.loo, cumulative.model.loo)</code></pre>
+<pre><code>##                                            LOOIC    SE
+## gaussian.model                            437.90 12.95
+## exgaussian.model                          438.78 12.89
+## student.model                             438.52 13.38
+## hurdle_lognormal.model                    501.43 12.87
+## cumulative.model                          365.61 17.07
+## gaussian.model - exgaussian.model          -0.88  0.15
+## gaussian.model - student.model             -0.63  1.00
+## gaussian.model - hurdle_lognormal.model   -63.54  8.33
+## gaussian.model - cumulative.model          72.29 16.15
+## exgaussian.model - student.model            0.25  1.12
+## exgaussian.model - hurdle_lognormal.model -62.66  8.25
+## exgaussian.model - cumulative.model        73.17 16.12
+## student.model - hurdle_lognormal.model    -62.91  9.25
+## student.model - cumulative.model           72.91 15.86
+## hurdle_lognormal.model - cumulative.model 135.83 21.27</code></pre>
+<pre class="r"><code>#re-running the model w/ the original data set (not plus 1)
+cumulative.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare,
+                        data = legoData_final,
+                        prior=priors_score, 
+                        sample_prior = T, 
+                        cores = 4,
+                        family = cumulative,
+                        iter = 1000000)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>plot(cumulative.model) #seems fine</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/SCORE-3.png" width="672" /><img src="Lego_bayesian_files/figure-html/SCORE-4.png" width="672" /><img src="Lego_bayesian_files/figure-html/SCORE-5.png" width="672" /></p>
+<pre class="r"><code>pp_check(cumulative.model) #seems a much better fit</code></pre>
+<pre><code>## Using 10 posterior samples for ppc type &#39;dens_overlay&#39; by default.</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/SCORE-6.png" width="672" /></p>
+<pre class="r"><code>cumulative.model #run this to check the parameter estimates</code></pre>
+<pre><code>##  Family: cumulative(logit) 
+## Formula: Correct ~ SD_beskrivare + SD_byggare 
+##          disc = 1
+##    Data: legoData_final (Number of observations: 88) 
+## Samples: 4 chains, each with iter = 1e+06; warmup = 5e+05; thin = 1; 
+##          total post-warmup samples = 2e+06
+##     ICs: LOO = NA; WAIC = NA; R2 = NA
+##  
+## Population-Level Effects: 
+##                Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
+## Intercept[1]      -3.11      0.50    -4.15    -2.18    2000000 1.00
+## Intercept[2]      -2.58      0.44    -3.49    -1.75    2000000 1.00
+## Intercept[3]      -2.18      0.41    -3.00    -1.41    2000000 1.00
+## Intercept[4]      -1.78      0.38    -2.54    -1.06    2000000 1.00
+## Intercept[5]      -1.33      0.35    -2.04    -0.65    2000000 1.00
+## Intercept[6]      -0.68      0.33    -1.34    -0.03    2000000 1.00
+## Intercept[7]      -0.37      0.33    -1.02     0.27    2000000 1.00
+## Intercept[8]       0.37      0.32    -0.26     1.01    2000000 1.00
+## Intercept[9]       0.68      0.33     0.04     1.32    2000000 1.00
+## SD_beskrivare1     0.86      0.41     0.07     1.67    2000000 1.00
+## SD_byggare1       -1.16      0.42    -1.98    -0.35    2000000 1.00
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Eff.Sample 
+## is a crude measure of effective sample size, and Rhat is the potential 
+## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+<pre class="r"><code>#hypothesis testing
+##HDI
+score.hdi &lt;- sjstats::hdi(cumulative.model, prob = 0.95)
+hdi.Score_describer &lt;- score.hdi[10,]
+hdi.Score_builder &lt;- score.hdi[11,]</code></pre>
+<pre class="r"><code>#print Score 95% HDI
+##HDI
+hdi.Score_describer</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   term             hdi.low hdi.high
+##   &lt;chr&gt;              &lt;dbl&gt;    &lt;dbl&gt;
+## 1 b_SD_beskrivare1  0.0684     1.67</code></pre>
+<pre class="r"><code>hdi.Score_builder</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   term          hdi.low hdi.high
+##   &lt;chr&gt;           &lt;dbl&gt;    &lt;dbl&gt;
+## 1 b_SD_byggare1   -1.97   -0.338</code></pre>
+</div>
+<div id="time-seconds" class="section level3">
+<h3>TIME (seconds)</h3>
+<pre class="r"><code>#Set the prior
+priors_TIME = c(set_prior(&quot;normal(0,150)&quot;, class = &quot;b&quot;, lb = -600, ub = 600)) 
+
+#Bayesian linear models (adding 1 coefficient at a time)
+TIME.intercept.model &lt;- brm(TimeSec ~ 1, legoData_final, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Compiling the C++ model</code></pre>
+<pre><code>## Start sampling</code></pre>
+<pre class="r"><code>TIME.Beskrivare.model &lt;- brm(TimeSec ~ SD_beskrivare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>TIME.Byggare.model &lt;- brm(TimeSec ~ SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>TIME.BB.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>TIME.interaction.model &lt;- brm(TimeSec ~ SD_beskrivare*SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4) </code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>TIME1.waic &lt;- WAIC(TIME.intercept.model) #best model
+TIME2.waic &lt;- WAIC(TIME.Beskrivare.model)
+TIME3.waic &lt;- WAIC(TIME.Byggare.model)
+TIME4.waic &lt;- WAIC(TIME.BB.model)
+TIME5.waic &lt;- WAIC(TIME.interaction.model)
+compare_ic(TIME1.waic,TIME2.waic,TIME3.waic,TIME4.waic,TIME5.waic) </code></pre>
+<pre><code>##                                                   WAIC    SE
+## TIME.intercept.model                           1052.69 12.33
+## TIME.Beskrivare.model                          1054.70 12.31
+## TIME.Byggare.model                             1054.42 12.62
+## TIME.BB.model                                  1056.51 12.75
+## TIME.interaction.model                         1058.32 12.58
+## TIME.intercept.model - TIME.Beskrivare.model     -2.00  0.09
+## TIME.intercept.model - TIME.Byggare.model        -1.72  1.16
+## TIME.intercept.model - TIME.BB.model             -3.81  1.38
+## TIME.intercept.model - TIME.interaction.model    -5.63  1.52
+## TIME.Beskrivare.model - TIME.Byggare.model        0.28  1.18
+## TIME.Beskrivare.model - TIME.BB.model            -1.81  1.37
+## TIME.Beskrivare.model - TIME.interaction.model   -3.62  1.51
+## TIME.Byggare.model - TIME.BB.model               -2.09  0.52
+## TIME.Byggare.model - TIME.interaction.model      -3.91  0.86
+## TIME.BB.model - TIME.interaction.model           -1.82  0.78</code></pre>
+<pre class="r"><code>TIME1.loo &lt;- LOO(TIME.intercept.model) #best model
+TIME2.loo &lt;- LOO(TIME.Beskrivare.model)
+TIME3.loo &lt;- LOO(TIME.Byggare.model)
+TIME4.loo &lt;- LOO(TIME.BB.model)
+TIME5.loo &lt;- LOO(TIME.interaction.model)
+compare_ic(TIME1.loo,TIME2.loo,TIME3.loo,TIME4.loo,TIME5.loo)</code></pre>
+<pre><code>##                                                  LOOIC    SE
+## TIME.intercept.model                           1052.70 12.33
+## TIME.Beskrivare.model                          1054.71 12.32
+## TIME.Byggare.model                             1054.43 12.63
+## TIME.BB.model                                  1056.54 12.77
+## TIME.interaction.model                         1058.37 12.60
+## TIME.intercept.model - TIME.Beskrivare.model     -2.01  0.09
+## TIME.intercept.model - TIME.Byggare.model        -1.73  1.16
+## TIME.intercept.model - TIME.BB.model             -3.84  1.39
+## TIME.intercept.model - TIME.interaction.model    -5.67  1.52
+## TIME.Beskrivare.model - TIME.Byggare.model        0.28  1.18
+## TIME.Beskrivare.model - TIME.BB.model            -1.83  1.38
+## TIME.Beskrivare.model - TIME.interaction.model   -3.66  1.51
+## TIME.Byggare.model - TIME.BB.model               -2.11  0.52
+## TIME.Byggare.model - TIME.interaction.model      -3.94  0.86
+## TIME.BB.model - TIME.interaction.model           -1.83  0.78</code></pre>
+<pre class="r"><code>##### checking different distributions
+TIME.gaussian.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = gaussian)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>TIME.exgaussian.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = exgaussian)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre><code>## Warning: There were 1292 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help. See
+## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
+<pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+<pre class="r"><code>TIME.student.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = student)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>TIME.hurdle_lognormal.model  &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = hurdle_lognormal)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>TIME.weibull.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = weibull)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre><code>## Warning: There were 1166 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
+## http://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded</code></pre>
+<pre><code>## Warning: There were 3 chains where the estimated Bayesian Fraction of Missing Information was low. See
+## http://mc-stan.org/misc/warnings.html#bfmi-low</code></pre>
+<pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+<pre class="r"><code>TIME.lognormal.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = lognormal)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>TIME.exponential.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = exponential)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre><code>## Warning: There were 643 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
+## http://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded</code></pre>
+<pre><code>## Warning: There were 2 chains where the estimated Bayesian Fraction of Missing Information was low. See
+## http://mc-stan.org/misc/warnings.html#bfmi-low</code></pre>
+<pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+<pre class="r"><code>TIME.gaussian.model.waic &lt;- WAIC(TIME.gaussian.model) #best
+TIME.exgaussian.model.waic &lt;- WAIC(TIME.exgaussian.model)
+TIME.student.model.waic &lt;- WAIC(TIME.student.model)
+TIME.hurdle_lognormal.waic &lt;- WAIC(TIME.hurdle_lognormal.model)
+TIME.weibull.model.waic &lt;- WAIC(TIME.weibull.model)
+TIME.lognormal.model.waic &lt;- WAIC(TIME.lognormal.model)
+
+compare_ic(TIME.gaussian.model.waic, TIME.exgaussian.model.waic, TIME.student.model.waic,TIME.hurdle_lognormal.waic,TIME.lognormal.model.waic)</code></pre>
+<pre><code>##                                                        WAIC    SE
+## TIME.gaussian.model                                 1056.51 12.75
+## TIME.exgaussian.model                               1056.81 12.83
+## TIME.student.model                                  1057.63 13.20
+## TIME.hurdle_lognormal.model                         1076.77 13.71
+## TIME.lognormal.model                                1075.32 13.66
+## TIME.gaussian.model - TIME.exgaussian.model           -0.30  0.14
+## TIME.gaussian.model - TIME.student.model              -1.13  1.26
+## TIME.gaussian.model - TIME.hurdle_lognormal.model    -20.27  3.96
+## TIME.gaussian.model - TIME.lognormal.model           -18.81  3.98
+## TIME.exgaussian.model - TIME.student.model            -0.83  1.33
+## TIME.exgaussian.model - TIME.hurdle_lognormal.model  -19.96  3.86
+## TIME.exgaussian.model - TIME.lognormal.model         -18.51  3.88
+## TIME.student.model - TIME.hurdle_lognormal.model     -19.14  5.12
+## TIME.student.model - TIME.lognormal.model            -17.68  5.14
+## TIME.hurdle_lognormal.model - TIME.lognormal.model     1.45  0.14</code></pre>
+<pre class="r"><code>TIME.gaussian.model.LOO &lt;- LOO(TIME.gaussian.model) #best
+TIME.exgaussian.model.LOO &lt;- LOO(TIME.exgaussian.model)
+TIME.student.model.LOO &lt;- LOO(TIME.student.model)
+TIME.hurdle_lognormal.LOO &lt;- LOO(TIME.hurdle_lognormal.model)
+TIME.lognormal.model.LOO &lt;- LOO(TIME.lognormal.model)
+
+compare_ic(TIME.gaussian.model.LOO, TIME.exgaussian.model.LOO, TIME.student.model.LOO,TIME.hurdle_lognormal.LOO,TIME.lognormal.model.LOO) </code></pre>
+<pre><code>##                                                       LOOIC    SE
+## TIME.gaussian.model                                 1056.54 12.77
+## TIME.exgaussian.model                               1056.87 12.86
+## TIME.student.model                                  1057.65 13.21
+## TIME.hurdle_lognormal.model                         1076.83 13.75
+## TIME.lognormal.model                                1075.40 13.71
+## TIME.gaussian.model - TIME.exgaussian.model           -0.33  0.16
+## TIME.gaussian.model - TIME.student.model              -1.11  1.26
+## TIME.gaussian.model - TIME.hurdle_lognormal.model    -20.29  3.98
+## TIME.gaussian.model - TIME.lognormal.model           -18.86  4.01
+## TIME.exgaussian.model - TIME.student.model            -0.78  1.34
+## TIME.exgaussian.model - TIME.hurdle_lognormal.model  -19.96  3.86
+## TIME.exgaussian.model - TIME.lognormal.model         -18.53  3.89
+## TIME.student.model - TIME.hurdle_lognormal.model     -19.18  5.14
+## TIME.student.model - TIME.lognormal.model            -17.75  5.17
+## TIME.hurdle_lognormal.model - TIME.lognormal.model     1.43  0.14</code></pre>
+<pre class="r"><code>##let&#39;s check the &quot;best&quot; model - gaussian
+
+plot(TIME.gaussian.model) </code></pre>
+<p><img src="Lego_bayesian_files/figure-html/TIME-1.png" width="672" /></p>
+<pre class="r"><code>pp_check(TIME.gaussian.model)</code></pre>
+<pre><code>## Using 10 posterior samples for ppc type &#39;dens_overlay&#39; by default.</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/TIME-2.png" width="672" /></p>
+<pre class="r"><code>TIME.gaussian.model</code></pre>
+<pre><code>##  Family: gaussian(identity) 
+## Formula: TimeSec ~ SD_beskrivare + SD_byggare 
+##    Data: legoData_final (Number of observations: 88) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1; 
+##          total post-warmup samples = 4000
+##     ICs: LOO = NA; WAIC = NA; R2 = NA
+##  
+## Population-Level Effects: 
+##                Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
+## Intercept        516.85     15.74   486.02   547.76       4000 1.00
+## SD_beskrivare1    -4.63     21.63   -47.51    37.44       4000 1.00
+## SD_byggare1       12.72     21.14   -28.50    53.44       4000 1.00
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
+## sigma    95.92      7.43    82.55   112.21       4000 1.00
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Eff.Sample 
+## is a crude measure of effective sample size, and Rhat is the potential 
+## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+<pre class="r"><code># hypothesis testing
+
+##HDI
+time.hdi &lt;- sjstats::hdi(TIME.gaussian.model, prob = 0.95)
+hdi.Time_describer &lt;- time.hdi[2,]
+hdi.Time_builder &lt;- time.hdi[3,]</code></pre>
+<pre class="r"><code>#print Time 95% HDI
+##HDI
+hdi.Time_describer</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   term             hdi.low hdi.high
+##   &lt;chr&gt;              &lt;dbl&gt;    &lt;dbl&gt;
+## 1 b_SD_beskrivare1   -48.6     36.0</code></pre>
+<pre class="r"><code>hdi.Time_builder</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   term          hdi.low hdi.high
+##   &lt;chr&gt;           &lt;dbl&gt;    &lt;dbl&gt;
+## 1 b_SD_byggare1   -27.4     54.2</code></pre>
+</div>
+<div id="efficiency" class="section level3">
+<h3>EFFICIENCY</h3>
+<pre class="r"><code>#setting the priors
+priors_EFF = c(set_prior(&quot;normal(0,0.5)&quot;, class = &quot;b&quot;, lb = -2, ub = 2))
+
+#checking models
+EFF.intercept.model &lt;- brm(efficiency_scaled ~ 1, legoData_final, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Compiling the C++ model</code></pre>
+<pre><code>## Start sampling</code></pre>
+<pre class="r"><code>EFF.Beskrivare.model &lt;- brm(efficiency_scaled ~ SD_beskrivare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>EFF.Byggare.model &lt;- brm(efficiency_scaled ~ SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>EFF.BB.model &lt;- brm(efficiency_scaled ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>EFF.interaction.model &lt;- brm(efficiency_scaled ~ SD_beskrivare*SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>##### model comparison
+EFF.model1.waic &lt;- WAIC(EFF.intercept.model)
+EFF.model2.waic &lt;- WAIC(EFF.Beskrivare.model)
+EFF.model3.waic &lt;- WAIC(EFF.Byggare.model)
+EFF.model4.waic &lt;- WAIC(EFF.BB.model) #best fitting model
+EFF.model5.waic &lt;- WAIC(EFF.interaction.model)
+compare_ic(EFF.model1.waic,EFF.model2.waic,EFF.model3.waic,EFF.model4.waic,EFF.model5.waic)</code></pre>
+<pre><code>##                                                WAIC    SE
+## EFF.intercept.model                          253.31 10.69
+## EFF.Beskrivare.model                         253.88 10.63
+## EFF.Byggare.model                            251.79 11.51
+## EFF.BB.model                                 250.23 11.86
+## EFF.interaction.model                        251.34 11.90
+## EFF.intercept.model - EFF.Beskrivare.model    -0.56  1.89
+## EFF.intercept.model - EFF.Byggare.model        1.52  3.26
+## EFF.intercept.model - EFF.BB.model             3.09  4.72
+## EFF.intercept.model - EFF.interaction.model    1.98  4.72
+## EFF.Beskrivare.model - EFF.Byggare.model       2.08  4.00
+## EFF.Beskrivare.model - EFF.BB.model            3.65  4.10
+## EFF.Beskrivare.model - EFF.interaction.model   2.54  4.10
+## EFF.Byggare.model - EFF.BB.model               1.56  3.04
+## EFF.Byggare.model - EFF.interaction.model      0.45  3.08
+## EFF.BB.model - EFF.interaction.model          -1.11  0.54</code></pre>
+<pre class="r"><code>EFF.model1.LOO &lt;- LOO(EFF.intercept.model)
+EFF.model2.LOO &lt;- LOO(EFF.Beskrivare.model)
+EFF.model3.LOO &lt;- LOO(EFF.Byggare.model)
+EFF.model4.LOO &lt;- LOO(EFF.BB.model) #best fitting model
+EFF.model5.LOO &lt;- LOO(EFF.interaction.model)
+compare_ic(EFF.model1.LOO,EFF.model2.LOO,EFF.model3.LOO,EFF.model4.LOO,EFF.model5.LOO)</code></pre>
+<pre><code>##                                               LOOIC    SE
+## EFF.intercept.model                          253.32 10.69
+## EFF.Beskrivare.model                         253.89 10.63
+## EFF.Byggare.model                            251.80 11.51
+## EFF.BB.model                                 250.24 11.86
+## EFF.interaction.model                        251.36 11.91
+## EFF.intercept.model - EFF.Beskrivare.model    -0.57  1.89
+## EFF.intercept.model - EFF.Byggare.model        1.51  3.26
+## EFF.intercept.model - EFF.BB.model             3.08  4.72
+## EFF.intercept.model - EFF.interaction.model    1.96  4.72
+## EFF.Beskrivare.model - EFF.Byggare.model       2.08  4.00
+## EFF.Beskrivare.model - EFF.BB.model            3.64  4.10
+## EFF.Beskrivare.model - EFF.interaction.model   2.52  4.10
+## EFF.Byggare.model - EFF.BB.model               1.56  3.05
+## EFF.Byggare.model - EFF.interaction.model      0.44  3.09
+## EFF.BB.model - EFF.interaction.model          -1.12  0.54</code></pre>
+<pre class="r"><code>##### checking different distributions
+EFF.gaussian.model &lt;- brm(efficiency_scaled ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4,family = gaussian)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>EFF.exgaussian.model &lt;- brm(efficiency_scaled ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4,family = exgaussian)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre><code>## Warning: There were 228 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help. See
+## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
+<pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+<pre class="r"><code>EFF.student.model &lt;- brm(efficiency_scaled ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4,family = student)</code></pre>
+<pre><code>## Compiling the C++ model
+## Start sampling</code></pre>
+<pre class="r"><code>EFF.gaussian.model.waic &lt;- WAIC(EFF.gaussian.model) 
+EFF.exgaussian.model.waic &lt;- WAIC(EFF.exgaussian.model)
+EFF.student.model.waic &lt;- WAIC(EFF.student.model)
+
+compare_ic(EFF.gaussian.model.waic, EFF.exgaussian.model.waic, EFF.student.model.waic)</code></pre>
+<pre><code>##                                             WAIC    SE
+## EFF.gaussian.model                        250.23 11.86
+## EFF.exgaussian.model                      251.33 11.88
+## EFF.student.model                         251.66 12.27
+## EFF.gaussian.model - EFF.exgaussian.model  -1.10  0.82
+## EFF.gaussian.model - EFF.student.model     -1.43  0.59
+## EFF.exgaussian.model - EFF.student.model   -0.33  0.92</code></pre>
+<pre class="r"><code>EFF.gaussian.model.loo &lt;- LOO(EFF.gaussian.model) 
+EFF.exgaussian.model.loo &lt;- LOO(EFF.exgaussian.model)
+EFF.student.model.loo &lt;- LOO(EFF.student.model)
+
+compare_ic(EFF.gaussian.model.loo, EFF.exgaussian.model.loo, EFF.student.model.loo)</code></pre>
+<pre><code>##                                            LOOIC    SE
+## EFF.gaussian.model                        250.24 11.86
+## EFF.exgaussian.model                      251.39 11.90
+## EFF.student.model                         251.67 12.27
+## EFF.gaussian.model - EFF.exgaussian.model  -1.15  0.84
+## EFF.gaussian.model - EFF.student.model     -1.43  0.59
+## EFF.exgaussian.model - EFF.student.model   -0.28  0.93</code></pre>
+<pre class="r"><code>###best model
+
+EFF.BB.model</code></pre>
+<pre><code>##  Family: gaussian(identity) 
+## Formula: efficiency_scaled ~ SD_beskrivare + SD_byggare 
+##    Data: legoData_final (Number of observations: 88) 
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1; 
+##          total post-warmup samples = 4000
+##     ICs: LOO = NA; WAIC = NA; R2 = NA
+##  
+## Population-Level Effects: 
+##                Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
+## Intercept          0.06      0.15    -0.24     0.36       4000 1.00
+## SD_beskrivare1     0.31      0.20    -0.07     0.69       4000 1.00
+## SD_byggare1       -0.41      0.19    -0.78    -0.02       4000 1.00
+## 
+## Family Specific Parameters: 
+##       Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
+## sigma     0.99      0.08     0.86     1.15       4000 1.00
+## 
+## Samples were drawn using sampling(NUTS). For each parameter, Eff.Sample 
+## is a crude measure of effective sample size, and Rhat is the potential 
+## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
+<pre class="r"><code>plot(EFF.BB.model)</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/EFFICIENCY-1.png" width="672" /></p>
+<pre class="r"><code>pp_check(EFF.BB.model)</code></pre>
+<pre><code>## Using 10 posterior samples for ppc type &#39;dens_overlay&#39; by default.</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/EFFICIENCY-2.png" width="672" /></p>
+<pre class="r"><code>###hypothesis testing
+#HDI
+efficiency.hdi &lt;- sjstats::hdi(EFF.BB.model, prob = 0.95)
+hdi.Efficiency_describer &lt;- efficiency.hdi[2,]
+hdi.Efficiency_builder &lt;- efficiency.hdi[3,]</code></pre>
+<pre class="r"><code>#print efficiency 95% HDI
+##HDI
+hdi.Efficiency_describer</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   term             hdi.low hdi.high
+##   &lt;chr&gt;              &lt;dbl&gt;    &lt;dbl&gt;
+## 1 b_SD_beskrivare1 -0.0756    0.689</code></pre>
+<pre class="r"><code>hdi.Efficiency_builder</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   term          hdi.low hdi.high
+##   &lt;chr&gt;           &lt;dbl&gt;    &lt;dbl&gt;
+## 1 b_SD_byggare1  -0.791  -0.0458</code></pre>
+</div>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

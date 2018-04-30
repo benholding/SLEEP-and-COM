@@ -8,7 +8,7 @@ navbar:
     - text: "Verbal Fluency"
       href: WF_bayesian.html
     - text: "Model Building"
-      href: WorkingMemory.html
+      href: Lego_bayesian.html
     - text: "Taboo"
       href: Short-term_memory.html 
     - text: "Sociometric badge"

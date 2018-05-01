@@ -5,8 +5,9 @@ date: "31/05/2017"
 output: html_document
 ---
 
-#Setup
+
 ```{r setup, include=FALSE}
+#Setup
 knitr::opts_chunk$set(echo = TRUE)
 
 ipak <- function(pkg){
@@ -16,13 +17,14 @@ ipak <- function(pkg){
     sapply(pkg, require, character.only = TRUE)
 } #function to see if package is installed. Will download if not, and then opens it.
 
-packages <- c("brms", "plyr", "dplyr", "data.table", "lubridate", "tidyr", "xlsx") #packages that are required
+packages <- c("brms", "plyr", "dplyr", "data.table", "lubridate", "tidyr", "xlsx", "tidyr", "apaStyle","sjstats", "BEST", "ggridges", "ggpubr", "tidybayes") #packages that are required
 suppressPackageStartupMessages(ipak(packages))
 
 ```
 
+
+```{r, include=FALSE}
 #Data import and formatting
-```{r}
 tabu.initial <- read.csv("Taboo_raw_combined.csv") #reading in long form data
 
 colnames(tabu.initial) <- c("Word",	"Score", "Speaker ID",	"Filename", "Notes") #changing column names
@@ -121,7 +123,7 @@ Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD  == 1 & Tabu_with_rounds$Spea
 
 
 #Analysis for Round score
-```{r}
+```{r,cache=TRUE}
 #Setting the priors
 priors_tabu = c(set_prior("normal(0,1.5)", class = "b"))
 
@@ -166,7 +168,7 @@ tabu.both.model <- brm(Correct~ Speaker_SD+Guesser_SD + (1|pair),
                        sample_prior = T, 
                        cores = 4,
                        family = poisson(),
-                       iter = 1000000)
+                       iter = 100000)
 
 ####best model 
 plot(tabu.both.model)
@@ -176,55 +178,19 @@ tabu.both.model
 #hypothesis testing
 
 ##HDI
-Taboo.hdi <- hdi(brms::as.mcmc(tabu.both.model), credMass = 0.95)
-hdi.Score_speaker <- Taboo.hdi[,2]
-hdi.Score_guesser <- Taboo.hdi[,3]
+Taboo.hdi <-sjstats::hdi(tabu.both.model, prob = 0.95)
+hdi.Score_speaker <- Taboo.hdi[2,]; hdi.Score_speaker
+hdi.Score_guesser <- Taboo.hdi[3,]; hdi.Score_guesser
+```
 
-##ROPE
-taboo.speaker.mcmc <- as.mcmc(tabu.both.model, pars= "Speaker_SD", combine_chains = T)
-taboo.guesser.mcmc <- as.mcmc(tabu.both.model, pars= "Guesser_SD", combine_chains = T)
 
-plotAreaInROPE(taboo.speaker.mcmc, maxROPEradius = 0.25)
-plotAreaInROPE(taboo.guesser.mcmc, maxROPEradius = 0.26)
-
+```{r, eval=FALSE, include=FALSE}
+#Creating tables for the manuscript
 ## Bayes Factor
 tabu.h0.Speaker <- hypothesis(tabu.both.model, "Speaker_SD = 0"); plot(tabu.h0.Speaker)
 tabu.h0.guesser <- hypothesis(tabu.both.model, "Guesser_SD = 0"); plot(tabu.h0.guesser)
-```
-
-#Analysis for attempts
-```{r}
-tabu.intercept.model2 <- brm(Correct ~ 1 + (1|pair), Tabu_with_rounds, sample_prior = T, cores = 4,family = poisson())
-
-tabu.Speaker.model2 <- brm(total_attempts ~ Speaker_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
-
-tabu.guesser.model2 <- brm(total_attempts ~ Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
-
-tabu.both.model2 <- brm(total_attempts~ Speaker_SD+Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
-
-tabu.interaction.model2 <- brm(total_attempts ~ Speaker_SD*Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
-
-##### model comparison
-tabu.intercept.waic2 <- WAIC(tabu.intercept.model2) #best model
-tabu.speaker.waic2 <- WAIC(tabu.Speaker.model2)
-tabu.guesser.waic <- WAIC(tabu.guesser.model2)
-tabu.both.waic <- WAIC(tabu.both.model2) 
-tabu.interaction.waic <- WAIC(tabu.interaction.model2)
-compare_ic(tabu.intercept.waic2,tabu.speaker.waic2,tabu.guesser.waic,tabu.both.waic,tabu.interaction.waic) 
-
-tabu.model1.LOO <- LOO(tabu.intercept.model) #best model
-tabu.model2.LOO <- LOO(tabu.Speaker.model) 
-tabu.model3.LOO <- LOO(tabu.guesser.model)
-tabu.model4.LOO <- LOO(tabu.both.model) 
-tabu.model5.LOO <- LOO(tabu.interaction.model)
-compare_ic(tabu.model1.LOO,tabu.model2.LOO,tabu.model3.LOO,tabu.model4.LOO,tabu.model5.LOO) #same again here
-```
 
 
-
-
-#Creating tables for the manuscript
-```{r}
 simple_taboo <- data.frame(row.names = "Percentage change",
                          Speaker_mu = tabu.h0.Speaker$hypothesis$Estimate,
                          Speaker_HDI_low = hdi.Score_speaker[1],
@@ -255,8 +221,8 @@ setwd(myoriginalwd)
 ```
 
 
+```{r, eval=FALSE, include=F}
 #Creating plots for manuscript
-```{r}
 
 plot(tabu.h0.Speaker)
 plot(tabu.h0.guesser)

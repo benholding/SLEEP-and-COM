@@ -10,8 +10,8 @@ navbar:
     - text: "Model Building"
       href: Lego_bayesian.html
     - text: "Taboo"
-      href: Short-term_memory.html 
+      href: Tabu_bayesian.html 
     - text: "Sociometric badge"
-      href: Maths.html 
+      href: Sociometric_bayesian.html 
     - text: "About"
       href: about.html

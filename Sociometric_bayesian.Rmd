@@ -9,9 +9,8 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
+```{r, include=FALSE}
 #Package Setup
-```{r}
 options(java.parameters = "-Xmx12g")
 
 ipak <- function(pkg){
@@ -21,12 +20,13 @@ ipak <- function(pkg){
     sapply(pkg, require, character.only = TRUE)
 } #function to see if package is installed. Will download if not, and then opens it.
 
-packages <- c("xlsx", "plyr", "BayesFactor", "pastecs", "sjstats", "BEST", "apaStyle")
+packages <- c("xlsx", "plyr", "BayesFactor", "pastecs", "sjstats", "BEST", "apaStyle", "dplyr")
 suppressPackageStartupMessages(ipak(packages))
 ```
 
+
+```{r, include=FALSE}
 #Data import and formatting
-```{r}
 #importing condition and sociometric data
 key <- read.csv("SleSI_Masterkey.csv")
 sociometric.raw <- read.csv("sociometric_raw_data_combined.csv")
@@ -44,8 +44,6 @@ sociometric.tagged %>% group_by(SD) %>% summarise(mean(speech_profile_total_spea
 sociometric.tagged %>% group_by(SD) %>% summarise(mean(audio_front_volume_SCALED),sd(audio_front_volume_SCALED)) 
 
 sociometric.tagged %>% group_by(SD) %>% summarise(mean(audio_front_vol_consistency_SCALED),sd(audio_front_vol_consistency_SCALED)) 
-
-
 ```
 
 
@@ -70,15 +68,11 @@ Speaking_best_priors <- BESTmcmc(sociometric.tagged$speech_profile_total_speakin
 
 
 # check the output
-speaking.summary <- summary(Speaking_best, ROPEm =c(-1,1), ROPEsd=c(-1, 1)) # haven't specified these so much
+speaking.summary <- summary(Speaking_best)
 speaking.summary
 
 #Creating a plot of the posterior distribution for the difference between groups
 plot(Speaking_best) #the probability that the true value is smaller than zero = 95.5%
-
-#ROPE radius plot
-speaking.meanDiff <- (Speaking_best$mu1 - Speaking_best$mu2)
-plotAreaInROPE(speaking.meanDiff, maxROPEradius = 67)
 
 #is the model a reasonable description of the data?
 plotPostPred(Speaking_best)
@@ -97,15 +91,11 @@ total_volume_best <- BESTmcmc(sociometric.tagged$audio_front_volume_SCALED[socio
 
 
 # check the output
-total_volume.summary <- summary(total_volume_best, ROPEm =c(-0.01,0.01)) # haven't specified these so much
+total_volume.summary <- summary(total_volume_best)
 total_volume.summary
 
 #Creating a plot of the posterior distribution for the difference between groups
-plot(total_volume_best) #the probability that the true value is smaller than zero = 95.5%
-
-        #ROPE radius plot
-volume.meanDiff <- (total_volume_best$mu1 - total_volume_best$mu2)
-plotAreaInROPE(volume.meanDiff, maxROPEradius = 0.0013)
+plot(total_volume_best)
 
 #is the model a reasonable description of the data?
 plotPostPred(total_volume_best)
@@ -122,15 +112,11 @@ variation_volume_best <- BESTmcmc(sociometric.tagged$audio_front_vol_consistency
                                   parallel = T)
 
 # check the output
-variation_volume.summary <- summary(variation_volume_best, ROPEm =c(-0.01,0.01)) # haven't specified these so much
+variation_volume.summary <- summary(variation_volume_best)
 variation_volume.summary
 
 #Creating a plot of the posterior distribution for the difference between groups
-plot(variation_volume_best) #the probability that the true value is smaller than zero = 95.5%
-
-#ROPE radius plot
-variation_volume.meanDiff <- (variation_volume_best$mu1 - variation_volume_best$mu2)
-plotAreaInROPE(variation_volume.meanDiff, maxROPEradius = 0.046)
+plot(variation_volume_best)
 
 #is the model a reasonable description of the data?
 plotPostPred(variation_volume_best)
@@ -139,8 +125,9 @@ plotPostPred(variation_volume_best)
 plotAll(variation_volume_best)
 ```
 
+
+```{r, eval=FALSE}
 #Creating tables for the manuscript
-```{r}
 simple_speaking <- data.frame(row.names = "Speaking Duration",
                          Control_mu = speaking.summary[2,1],
                          Control_sigma = speaking.summary[5,1],
@@ -192,7 +179,7 @@ apa.table(data = Sociometric_APA_table,
 setwd(myoriginalwd)
 ```
 
-```{r}
+```{r, eval=FALSE}
 
 sociometric.speechduration.data <- melt(cbind("sleep deprivation" = Speaking_best$mu1, 
                             "control sleep" = Speaking_best$mu2,

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Benjamin Holding" />
+
+
+<title>Sociometer analysis</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-1.1/default.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Sleep & Communication</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="WF_bayesian.html">Verbal Fluency</a>
+</li>
+<li>
+  <a href="Lego_bayesian.html">Model Building</a>
+</li>
+<li>
+  <a href="Tabu_bayesian.html">Taboo</a>
+</li>
+<li>
+  <a href="Sociometric_bayesian.html">Sociometric badge</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Sociometer analysis</h1>
+<h4 class="author"><em>Benjamin Holding</em></h4>
+<h4 class="date"><em>24/10/2016</em></h4>
+
+</div>
+
+
+<div id="descriptive-statistics" class="section level1">
+<h1>Descriptive statistics</h1>
+<pre class="r"><code>sociometric.tagged %&gt;% group_by(SD) %&gt;% summarise(mean(speech_profile_total_speaking),sd(speech_profile_total_speaking)) %&gt;% print.data.frame()</code></pre>
+<pre><code>##   SD mean(speech_profile_total_speaking) sd(speech_profile_total_speaking)
+## 1  0                            649.5180                          126.6614
+## 2  1                            616.1271                          116.4013</code></pre>
+<pre class="r"><code>sociometric.tagged %&gt;% group_by(SD) %&gt;% summarise(mean(audio_front_volume_SCALED),sd(audio_front_volume_SCALED)) </code></pre>
+<pre><code>## # A tibble: 2 x 3
+##      SD `mean(audio_front_volume_SCALED)` `sd(audio_front_volume_SCALED)`
+##   &lt;int&gt;                             &lt;dbl&gt;                           &lt;dbl&gt;
+## 1     0                            0.0175                           1.05 
+## 2     1                           -0.0183                           0.952</code></pre>
+<pre class="r"><code>sociometric.tagged %&gt;% group_by(SD) %&gt;% summarise(mean(audio_front_vol_consistency_SCALED),sd(audio_front_vol_consistency_SCALED)) </code></pre>
+<pre><code>## # A tibble: 2 x 3
+##      SD `mean(audio_front_vol_consistency_SCALED)` `sd(audio_front_vol_co…
+##   &lt;int&gt;                                      &lt;dbl&gt;                   &lt;dbl&gt;
+## 1     0                                    -0.0456                   0.989
+## 2     1                                     0.0477                   1.01</code></pre>
+</div>
+<div id="analysis" class="section level1">
+<h1>Analysis</h1>
+<div id="total-speaking-time" class="section level2">
+<h2>Total speaking time</h2>
+<pre class="r"><code>#set the priors
+Speaking.priors &lt;- list(muM = 1050, muSD = 525)
+
+# run the bayesian &#39;t-test&#39;
+Speaking_best &lt;- BESTmcmc(sociometric.tagged$speech_profile_total_speaking[sociometric.tagged$SD ==1],
+                          sociometric.tagged$speech_profile_total_speaking[sociometric.tagged$SD ==0],
+                          priors = Speaking.priors,
+                          parallel = T)</code></pre>
+<pre><code>## Waiting for parallel processing to complete...done.</code></pre>
+<pre class="r"><code>#running the same to get the priors
+Speaking_best_priors &lt;- BESTmcmc(sociometric.tagged$speech_profile_total_speaking[sociometric.tagged$SD ==1],
+                          sociometric.tagged$speech_profile_total_speaking[sociometric.tagged$SD ==0],
+                          priors = Speaking.priors,
+                          parallel = T,
+                          doPriorsOnly = T)</code></pre>
+<pre><code>## Warning: The output shows the prior distributions,
+##       NOT the posterior distributions for your data.</code></pre>
+<pre><code>## Waiting for parallel processing to complete...done.</code></pre>
+<pre class="r"><code># check the output
+speaking.summary &lt;- summary(Speaking_best)
+speaking.summary</code></pre>
+<pre><code>##              mean  median    mode HDI%   HDIlo    HDIup compVal %&gt;compVal
+## mu1       617.638 617.644 618.286   95 592.092 642.7608                  
+## mu2       648.864 648.887 648.046   95 622.103 675.2283                  
+## muDiff    -31.226 -31.191 -29.721   95 -68.105   5.3060       0      4.72
+## sigma1    113.544 113.130 111.743   95  94.685 133.2414                  
+## sigma2    122.770 122.429 121.937   95 101.434 144.2409                  
+## sigmaDiff  -9.226  -9.104  -7.891   95 -36.141  18.1523       0     25.04
+## nu         38.178  29.297  14.306   95   3.778  98.5136                  
+## log10nu     1.464   1.467   1.448   95   0.843   2.0742                  
+## effSz      -0.264  -0.264  -0.248   95  -0.577   0.0443       0      4.72</code></pre>
+<pre class="r"><code>#Creating a plot of the posterior distribution for the difference between groups
+plot(Speaking_best) #the probability that the true value is smaller than zero = 95.5%</code></pre>
+<p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>#is the model a reasonable description of the data?
+plotPostPred(Speaking_best)</code></pre>
+<p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
+<pre class="r"><code>#to see all plots
+plotAll(Speaking_best)</code></pre>
+<p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-4-3.png" width="672" /></p>
+</div>
+<div id="total-volume" class="section level2">
+<h2>Total volume</h2>
+<pre class="r"><code># run the bayesian &#39;t-test&#39;
+total_volume_best &lt;- BESTmcmc(sociometric.tagged$audio_front_volume_SCALED[sociometric.tagged$SD ==1],
+                              sociometric.tagged$audio_front_volume_SCALED[sociometric.tagged$SD ==0],
+                              parallel = T)</code></pre>
+<pre><code>## Waiting for parallel processing to complete...done.</code></pre>
+<pre class="r"><code># check the output
+total_volume.summary &lt;- summary(total_volume_best)
+total_volume.summary</code></pre>
+<pre><code>##              mean  median    mode HDI%  HDIlo   HDIup compVal %&gt;compVal
+## mu1       -0.1032 -0.1046 -0.1113   95 -0.309  0.0984                  
+## mu2       -0.0713 -0.0722 -0.0706   95 -0.287  0.1501                  
+## muDiff    -0.0319 -0.0316 -0.0397   95 -0.316  0.2533       0      41.5
+## sigma1     0.8212  0.8179  0.8147   95  0.636  1.0197                  
+## sigma2     0.9070  0.9030  0.8966   95  0.714  1.1059                  
+## sigmaDiff -0.0858 -0.0857 -0.0934   95 -0.308  0.1322       0      21.9
+## nu        11.8954  7.8088  5.5447   95  2.340 34.1965                  
+## log10nu    0.9492  0.8926  0.8107   95  0.469  1.5755                  
+## effSz     -0.0370 -0.0366 -0.0489   95 -0.363  0.2979       0      41.5</code></pre>
+<pre class="r"><code>#Creating a plot of the posterior distribution for the difference between groups
+plot(total_volume_best)</code></pre>
+<p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
+<pre class="r"><code>#is the model a reasonable description of the data?
+plotPostPred(total_volume_best)</code></pre>
+<p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-5-2.png" width="672" /></p>
+<pre class="r"><code>#to see all plots
+plotAll(total_volume_best)</code></pre>
+<p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-5-3.png" width="672" /></p>
+</div>
+<div id="volume-variation" class="section level2">
+<h2>Volume variation</h2>
+<pre class="r"><code># run the bayesian &#39;t-test&#39;
+variation_volume_best &lt;- BESTmcmc(sociometric.tagged$audio_front_vol_consistency_SCALED[sociometric.tagged$SD ==1],
+                                  sociometric.tagged$audio_front_vol_consistency_SCALED [sociometric.tagged$SD ==0],
+                                  parallel = T)</code></pre>
+<pre><code>## Waiting for parallel processing to complete...done.</code></pre>
+<pre class="r"><code># check the output
+variation_volume.summary &lt;- summary(variation_volume_best)
+variation_volume.summary</code></pre>
+<pre><code>##              mean  median    mode HDI%  HDIlo   HDIup compVal %&gt;compVal
+## mu1        0.0354  0.0351  0.0287   95 -0.187   0.256                  
+## mu2       -0.0545 -0.0547 -0.0630   95 -0.262   0.154                  
+## muDiff     0.0899  0.0897  0.0844   95 -0.218   0.389       0      71.8
+## sigma1     1.0044  0.9998  0.9858   95  0.848   1.174                  
+## sigma2     0.9781  0.9741  0.9705   95  0.829   1.138                  
+## sigmaDiff  0.0264  0.0258  0.0240   95 -0.196   0.249       0      59.2
+## nu        46.9084 38.6766 24.0926   95  6.395 109.639                  
+## log10nu    1.5825  1.5874  1.5838   95  1.032   2.113                  
+## effSz      0.0909  0.0905  0.0877   95 -0.215   0.396       0      71.8</code></pre>
+<pre class="r"><code>#Creating a plot of the posterior distribution for the difference between groups
+plot(variation_volume_best)</code></pre>
+<p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>#is the model a reasonable description of the data?
+plotPostPred(variation_volume_best)</code></pre>
+<p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+<pre class="r"><code>#to see all plots
+plotAll(variation_volume_best)</code></pre>
+<p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-6-3.png" width="672" /></p>
+<pre class="r"><code>#Creating tables for the manuscript
+simple_speaking &lt;- data.frame(row.names = &quot;Speaking Duration&quot;,
+                         Control_mu = speaking.summary[2,1],
+                         Control_sigma = speaking.summary[5,1],
+                         SD_mu = speaking.summary[1,1],
+                         SD_sigma = speaking.summary[4,1],
+                         Difference_mean = speaking.summary[3,1],
+                         HDI_low = speaking.summary[3,5],
+                         HDI_High = speaking.summary[3,6],
+                         Effect_size = speaking.summary[9,1])
+
+simple_volume_average &lt;- data.frame(row.names = &quot;Speech Volume Average&quot;,
+                         Control_mu = total_volume.summary[2,1],
+                         Control_sigma = total_volume.summary[5,1],
+                         SD_mu = total_volume.summary[1,1],
+                         SD_sigma = total_volume.summary[4,1],
+                         Difference_mean = total_volume.summary[3,1],
+                         HDI_low = total_volume.summary[3,5],
+                         HDI_High = total_volume.summary[3,6],
+                         Effect_size = total_volume.summary[9,1])
+
+simple_volume_variation &lt;- data.frame(row.names = &quot;Speech Volume Variation&quot;,
+                         Control_mu = variation_volume.summary[2,1],
+                         Control_sigma = variation_volume.summary[5,1],
+                         SD_mu = variation_volume.summary[1,1],
+                         SD_sigma = variation_volume.summary[4,1],
+                         Difference_mean = variation_volume.summary[3,1],
+                         HDI_low = variation_volume.summary[3,5],
+                         HDI_High = variation_volume.summary[3,6],
+                         Effect_size = variation_volume.summary[9,1])
+  
+Sociometric_table &lt;- rbind(simple_speaking, simple_volume_average, simple_volume_variation)
+Sociometric_table &lt;- round(Sociometric_table,2)
+Sociometric_APA_table &lt;- cbind(Outcome = row.names(Sociometric_table), Sociometric_table)
+
+myoriginalwd &lt;- getwd()
+setwd(&quot;Tables_and_plots&quot;)
+apa.table(data = Sociometric_APA_table,
+          level1.header = c(&quot;&quot;,
+                            &quot;Control sleep&quot;, 
+                            &quot;Sleep deprivation&quot;, 
+                            &quot;Difference&quot;),
+          level1.colspan = c(1,2,2,4),
+          level2.header = colnames(Sociometric_APA_table),
+          number = &quot;4&quot;,
+          title = &quot;Bayesian Estimation of group differences in sociometric output&quot;,
+          filename = &quot;Sociometric_table.docx&quot;,
+          note = &quot;Note. HDI = Highest Density Interval; Std.dev = residual standard deviation&quot;,
+          save = T)$table
+setwd(myoriginalwd)</code></pre>
+<pre class="r"><code>sociometric.speechduration.data &lt;- melt(cbind(&quot;sleep deprivation&quot; = Speaking_best$mu1, 
+                            &quot;control sleep&quot; = Speaking_best$mu2,
+                            &quot;prior&quot; = Speaking_best_priors$mu1))
+
+Speech.duration.plot &lt;- ggdensity(sociometric.speechduration.data, x = &quot;value&quot;, 
+   rug = F,
+   color = &quot;Var2&quot;,
+   fill = &quot;Var2&quot;,
+   xlim = c(550, 700),
+   xlab = &quot;Speech Duration&quot;,
+   add = &quot;mean&quot;,
+   palette = c(&quot;#E495A5&quot;, &quot;#39BEB1&quot;,&quot;#ABB065&quot;)) + 
+  stat_pointintervalh(aes(y = -0.025), 
+                      data = sociometric.speechduration.data[which(sociometric.speechduration.data$Var2 == &quot;sleep deprivation&quot;),], fun.data = mean_hdih, .prob = c(.95, .80), color = &quot;#E495A5&quot;) +
+  stat_pointintervalh(aes(y = -0.05), 
+                      data = sociometric.speechduration.data[which(sociometric.speechduration.data$Var2 == &quot;control sleep&quot;),], fun.data = mean_hdih, .prob = c(.95, .80), color = &quot;#39BEB1&quot;) +
+  annotate(&quot;text&quot;, label = &quot;80% and 95% HDI&quot;, x = 20.5, y = -0.044, hjust = 0, vjust = 0.3)
+
+#####
+
+sociometric.volumeVariation.data &lt;- melt(cbind(&quot;sleep deprivation&quot; = variation_volume_best$mu1, 
+                            &quot;control sleep&quot; = variation_volume_best$mu2))
+
+Speech.volume.plot &lt;- ggdensity(sociometric.volumeVariation.data, x = &quot;value&quot;, 
+   rug = F,
+   color = &quot;Var2&quot;,
+   fill = &quot;Var2&quot;,
+   xlim = c(0.53, 0.65),
+   xlab = &quot;Speech Volume Consistency (1 = max consistency)&quot;,
+   add = &quot;mean&quot;,
+   palette = c(&quot;#E495A5&quot;, &quot;#39BEB1&quot;)) + 
+  stat_pointintervalh(aes(y = -50), 
+                      data = sociometric.volume.data[which(sociometric.volumeVariation.data$Var2 == &quot;sleep deprivation&quot;),], fun.data = mean_hdih, .prob = c(.95, .80), color = &quot;#E495A5&quot;) +
+  stat_pointintervalh(aes(y = -100), 
+                      data = sociometric.volume.data[which(sociometric.volumeVariation.data$Var2 == &quot;control sleep&quot;),], fun.data = mean_hdih, .prob = c(.95, .80), color = &quot;#39BEB1&quot;) +
+  annotate(&quot;text&quot;, label = &quot;80% and 95% HDI&quot;, x = 0.014, y = -75, hjust = 0, vjust = 0.3)
+
+###
+sociometric.volumeVariation.data &lt;- melt(cbind(&quot;sleep deprivation&quot; = total_volume_best$mu1, 
+                            &quot;control sleep&quot; = total_volume_best$mu2))</code></pre>
+</div>
+</div>
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

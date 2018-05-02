@@ -5,4 +5,4 @@ This repository contains the analysis code used in our paper 'Effects of sleep d
 
 For easier reading: https://benholding.github.io/SLEEP-and-COM/
 
-[![DOI](https://zenodo.org/badge/131573781.svg)](https://zenodo.org/badge/latestdoi/131573781)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1239718.svg)](https://doi.org/10.5281/zenodo.1239718)

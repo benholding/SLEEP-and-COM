@@ -208,7 +208,6 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">Sociometer analysis</h1>
 <h4 class="author"><em>Benjamin Holding</em></h4>
-<h4 class="date"><em>02 May, 2018</em></h4>
 
 </div>
 
@@ -258,15 +257,15 @@ Speaking_best_priors &lt;- BESTmcmc(sociometric.tagged$speech_profile_total_spea
 speaking.summary &lt;- summary(Speaking_best)
 speaking.summary</code></pre>
 <pre><code>##              mean  median    mode HDI%   HDIlo    HDIup compVal %&gt;compVal
-## mu1       617.576 617.587 617.402   95 592.297 643.0514                  
-## mu2       648.780 648.728 647.784   95 621.899 675.1463                  
-## muDiff    -31.205 -31.187 -32.533   95 -68.064   5.1615       0      4.72
-## sigma1    113.585 113.181 112.136   95  94.364 133.3602                  
-## sigma2    122.792 122.447 121.870   95 102.149 144.9300                  
-## sigmaDiff  -9.206  -9.189  -7.506   95 -36.677  17.3595       0     24.80
-## nu         38.402  29.712  14.893   95   3.631  98.1115                  
-## log10nu     1.467   1.473   1.489   95   0.850   2.0809                  
-## effSz      -0.264  -0.264  -0.265   95  -0.576   0.0418       0      4.72</code></pre>
+## mu1       617.624 617.677 618.005   95 592.217 642.6381                  
+## mu2       649.008 649.018 649.056   95 622.189 675.5687                  
+## muDiff    -31.384 -31.337 -27.271   95 -68.049   5.3302       0      4.67
+## sigma1    113.620 113.172 110.918   95  94.878 133.5228                  
+## sigma2    122.888 122.542 121.781   95 102.103 144.4479                  
+## sigmaDiff  -9.267  -9.265 -10.010   95 -36.253  18.1724       0     24.84
+## nu         38.349  29.804  14.491   95   3.968  97.9283                  
+## log10nu     1.469   1.474   1.474   95   0.846   2.0607                  
+## effSz      -0.266  -0.265  -0.254   95  -0.572   0.0472       0      4.67</code></pre>
 <pre class="r"><code>#Creating a plot of the posterior distribution for the difference between groups
 plot(Speaking_best) #the probability that the true value is smaller than zero = 95.5%</code></pre>
 <p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
@@ -287,16 +286,16 @@ total_volume_best &lt;- BESTmcmc(sociometric.tagged$audio_front_volume_SCALED[so
 <pre class="r"><code># check the output
 total_volume.summary &lt;- summary(total_volume_best)
 total_volume.summary</code></pre>
-<pre><code>##              mean  median    mode HDI%  HDIlo  HDIup compVal %&gt;compVal
-## mu1       -0.1029 -0.1048 -0.1057   95 -0.303  0.105                  
-## mu2       -0.0720 -0.0729 -0.0663   95 -0.290  0.148                  
-## muDiff    -0.0309 -0.0308 -0.0142   95 -0.316  0.256       0      41.6
-## sigma1     0.8206  0.8177  0.8133   95  0.637  1.017                  
-## sigma2     0.9063  0.9026  0.8910   95  0.711  1.102                  
-## sigmaDiff -0.0858 -0.0854 -0.0904   95 -0.305  0.134       0      21.9
-## nu        11.3389  7.7789  5.3162   95  2.193 31.448                  
-## log10nu    0.9417  0.8909  0.7964   95  0.466  1.536                  
-## effSz     -0.0358 -0.0356 -0.0137   95 -0.371  0.290       0      41.6</code></pre>
+<pre><code>##              mean  median    mode HDI%  HDIlo   HDIup compVal %&gt;compVal
+## mu1       -0.1027 -0.1043 -0.1131   95 -0.303  0.0993                  
+## mu2       -0.0717 -0.0722 -0.0671   95 -0.296  0.1446                  
+## muDiff    -0.0310 -0.0314 -0.0501   95 -0.316  0.2544       0      41.6
+## sigma1     0.8203  0.8174  0.8151   95  0.633  1.0119                  
+## sigma2     0.9057  0.9019  0.8893   95  0.712  1.1035                  
+## sigmaDiff -0.0854 -0.0849 -0.0806   95 -0.304  0.1362       0      22.0
+## nu        11.3562  7.7543  5.2496   95  2.289 31.5932                  
+## log10nu    0.9417  0.8895  0.8106   95  0.476  1.5449                  
+## effSz     -0.0361 -0.0363 -0.0548   95 -0.360  0.3025       0      41.6</code></pre>
 <pre class="r"><code>#Creating a plot of the posterior distribution for the difference between groups
 plot(total_volume_best)</code></pre>
 <p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
@@ -318,15 +317,15 @@ variation_volume_best &lt;- BESTmcmc(sociometric.tagged$audio_front_vol_consiste
 variation_volume.summary &lt;- summary(variation_volume_best)
 variation_volume.summary</code></pre>
 <pre><code>##              mean  median    mode HDI%  HDIlo   HDIup compVal %&gt;compVal
-## mu1        0.0352  0.0352  0.0229   95 -0.189   0.252                  
-## mu2       -0.0542 -0.0551 -0.0604   95 -0.266   0.155                  
-## muDiff     0.0895  0.0889  0.0817   95 -0.212   0.395       0      71.9
-## sigma1     1.0042  0.9996  1.0009   95  0.847   1.171                  
-## sigma2     0.9788  0.9744  0.9623   95  0.830   1.142                  
-## sigmaDiff  0.0255  0.0250  0.0141   95 -0.199   0.246       0      59.1
-## nu        46.9682 38.5711 23.1720   95  6.270 109.632                  
-## log10nu    1.5822  1.5863  1.6550   95  1.043   2.127                  
-## effSz      0.0904  0.0897  0.0852   95 -0.211   0.399       0      71.9</code></pre>
+## mu1        0.0366  0.0360  0.0289   95 -0.186   0.257                  
+## mu2       -0.0546 -0.0549 -0.0648   95 -0.261   0.157                  
+## muDiff     0.0912  0.0910  0.0995   95 -0.213   0.395       0      72.3
+## sigma1     1.0049  0.9997  0.9867   95  0.853   1.179                  
+## sigma2     0.9783  0.9741  0.9699   95  0.833   1.142                  
+## sigmaDiff  0.0266  0.0261  0.0267   95 -0.195   0.249       0      59.3
+## nu        46.8655 38.7831 24.6325   95  6.352 108.954                  
+## log10nu    1.5825  1.5886  1.6312   95  1.037   2.115                  
+## effSz      0.0920  0.0919  0.0964   95 -0.210   0.400       0      72.3</code></pre>
 <pre class="r"><code>#Creating a plot of the posterior distribution for the difference between groups
 plot(variation_volume_best)</code></pre>
 <p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>

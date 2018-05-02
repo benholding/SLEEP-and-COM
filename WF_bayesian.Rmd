@@ -1,7 +1,6 @@
 ---
 title: "Verbal Fluency"
 author: "Benjamin C. Holding"
-date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 ---
 

@@ -2,6 +2,6 @@
 title: "Sleep and Communication"
 ---
 
-This repository contains the analysis code used in our paper XXX (Holding, Sundelin, Lekander, Axelsson). 
+This repository contains the analysis code used in our paper 'Effects of sleep deprivation on dyadic verbal communication' (Holding, Sundelin, Lekander, Axelsson). 
 
 Click the tabs above to see the analytical code for each test.

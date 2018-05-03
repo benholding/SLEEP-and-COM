@@ -21,6 +21,9 @@ ipak <- function(pkg){
 
 packages <- c("xlsx", "plyr", "BayesFactor", "pastecs", "sjstats", "BEST", "apaStyle", "dplyr")
 suppressPackageStartupMessages(ipak(packages))
+
+set.seed(782349)
+
 ```
 
 
@@ -125,7 +128,7 @@ plotAll(variation_volume_best)
 ```
 
 
-```{r, eval=FALSE, include=FALSE}
+```{r, include=FALSE}
 #Creating tables for the manuscript
 simple_speaking <- data.frame(row.names = "Speaking Duration",
                          Control_mu = speaking.summary[2,1],
@@ -178,7 +181,7 @@ apa.table(data = Sociometric_APA_table,
 setwd(myoriginalwd)
 ```
 
-```{r, eval=FALSE, include=FALSE}
+```{r, include=FALSE, eval=FALSE}
 
 sociometric.speechduration.data <- melt(cbind("sleep deprivation" = Speaking_best$mu1, 
                             "control sleep" = Speaking_best$mu2,

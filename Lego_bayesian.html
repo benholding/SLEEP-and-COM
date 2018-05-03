@@ -393,8 +393,7 @@ cumulative.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare,
                         prior=priors_score, 
                         sample_prior = T, 
                         cores = 4,
-                        family = cumulative,
-                        iter = 1000000)</code></pre>
+                        family = cumulative)</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>plot(cumulative.model) #seems fine</code></pre>
@@ -407,23 +406,23 @@ cumulative.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare,
 ## Formula: Correct ~ SD_beskrivare + SD_byggare 
 ##          disc = 1
 ##    Data: legoData_final (Number of observations: 88) 
-## Samples: 4 chains, each with iter = 1e+06; warmup = 5e+05; thin = 1; 
-##          total post-warmup samples = 2e+06
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1; 
+##          total post-warmup samples = 4000
 ##     ICs: LOO = NA; WAIC = NA; R2 = NA
 ##  
 ## Population-Level Effects: 
 ##                Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
-## Intercept[1]      -3.11      0.50    -4.15    -2.18    2000000 1.00
-## Intercept[2]      -2.58      0.44    -3.49    -1.75    2000000 1.00
-## Intercept[3]      -2.18      0.41    -3.00    -1.41    2000000 1.00
-## Intercept[4]      -1.78      0.38    -2.54    -1.06    2000000 1.00
-## Intercept[5]      -1.33      0.35    -2.04    -0.65    2000000 1.00
-## Intercept[6]      -0.68      0.33    -1.34    -0.03    2000000 1.00
-## Intercept[7]      -0.37      0.33    -1.02     0.27    2000000 1.00
-## Intercept[8]       0.37      0.32    -0.26     1.01    2000000 1.00
-## Intercept[9]       0.68      0.33     0.04     1.32    2000000 1.00
-## SD_beskrivare1     0.86      0.41     0.07     1.67    2000000 1.00
-## SD_byggare1       -1.16      0.42    -1.98    -0.35    2000000 1.00
+## Intercept[1]      -3.11      0.49    -4.13    -2.22       4000 1.00
+## Intercept[2]      -2.59      0.43    -3.46    -1.80       4000 1.00
+## Intercept[3]      -2.18      0.39    -2.97    -1.44       4000 1.00
+## Intercept[4]      -1.78      0.38    -2.55    -1.07       4000 1.00
+## Intercept[5]      -1.33      0.35    -2.04    -0.66       4000 1.00
+## Intercept[6]      -0.68      0.33    -1.34    -0.04       4000 1.00
+## Intercept[7]      -0.38      0.32    -1.02     0.26       4000 1.00
+## Intercept[8]       0.36      0.32    -0.25     0.98       4000 1.00
+## Intercept[9]       0.67      0.32     0.04     1.30       4000 1.00
+## SD_beskrivare1     0.86      0.42     0.06     1.69       4000 1.00
+## SD_byggare1       -1.15      0.42    -1.99    -0.36       4000 1.00
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Eff.Sample 
 ## is a crude measure of effective sample size, and Rhat is the potential 
@@ -433,14 +432,14 @@ cumulative.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare,
 score.hdi &lt;- sjstats::hdi(cumulative.model, prob = 0.95)
 hdi.Score_describer &lt;- score.hdi[10,]; hdi.Score_describer</code></pre>
 <pre><code>## # A tibble: 1 x 3
-##   term             hdi.low hdi.high
-##   &lt;chr&gt;              &lt;dbl&gt;    &lt;dbl&gt;
-## 1 b_SD_beskrivare1  0.0684     1.67</code></pre>
+##   term              hdi.low hdi.high
+##   &lt;chr&gt;               &lt;dbl&gt;    &lt;dbl&gt;
+## 1 b_SD_beskrivare1 0.000439     1.63</code></pre>
 <pre class="r"><code>hdi.Score_builder &lt;- score.hdi[11,]; hdi.Score_builder</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   term          hdi.low hdi.high
 ##   &lt;chr&gt;           &lt;dbl&gt;    &lt;dbl&gt;
-## 1 b_SD_byggare1   -1.97   -0.338</code></pre>
+## 1 b_SD_byggare1   -2.00   -0.380</code></pre>
 <pre class="r"><code>##Bayes Factor
 ### For the null
 h0.Beskrivare &lt;- hypothesis(cumulative.model, &quot;SD_beskrivare1 = 0&quot;) #Bayes Factor

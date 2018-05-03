@@ -17,6 +17,8 @@ ipak <- function(pkg){
 
 packages <- c("brms", "plyr", "dplyr", "data.table", "lubridate", "tidyr", "xlsx", "BayesFactor", "rstanarm", "sjstats", "BEST", "apaStyle", "ggpubr", "yarrr", "bayesAB", "tidybayes",  "cowplot","gridExtra", "qpcR", "ggbeeswarm") #packages that are required
 suppressPackageStartupMessages(ipak(packages))
+
+set.seed(782349)
 ```
 
 ```{r, include=FALSE}
@@ -114,7 +116,7 @@ VERB_errors.summary
 ```
 
 
-```{r, eval=FALSE, include=FALSE}
+```{r, include=FALSE}
 #Creating tables for the manuscript
 simple_FAS <- data.frame(row.names = "FAS Score",
                          Control_mu = FAS.summary[2,1],
@@ -178,7 +180,7 @@ setwd(myoriginalwd)
 
 ```
 
-```{r, eval=FALSE, include=FALSE}
+```{r, include=FALSE, eval=FALSE}
 #Creating plots for manuscript
 #FAS plot
 FAS.plot.option1 <- plot(FAS_best,

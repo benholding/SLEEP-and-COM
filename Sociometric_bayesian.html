@@ -257,15 +257,15 @@ Speaking_best_priors &lt;- BESTmcmc(sociometric.tagged$speech_profile_total_spea
 speaking.summary &lt;- summary(Speaking_best)
 speaking.summary</code></pre>
 <pre><code>##              mean  median    mode HDI%   HDIlo    HDIup compVal %&gt;compVal
-## mu1       617.629 617.647 617.375   95 592.560 642.6797                  
-## mu2       648.930 648.945 649.477   95 622.387 675.6908                  
-## muDiff    -31.301 -31.308 -31.851   95 -68.239   4.8370       0      4.57
-## sigma1    113.547 113.134 111.539   95  94.918 133.4706                  
-## sigma2    122.838 122.487 121.397   95 101.861 144.8052                  
-## sigmaDiff  -9.291  -9.178  -8.512   95 -36.859  17.2257       0     24.74
-## nu         38.062  29.252  14.841   95   3.957  97.8714                  
-## log10nu     1.463   1.466   1.525   95   0.835   2.0641                  
-## effSz      -0.265  -0.265  -0.276   95  -0.568   0.0478       0      4.57</code></pre>
+## mu1       617.516 617.531 617.232   95 592.322 643.0418                  
+## mu2       648.916 648.910 648.707   95 622.427 675.7920                  
+## muDiff    -31.399 -31.298 -30.305   95 -69.504   4.2837       0      4.65
+## sigma1    113.671 113.184 111.249   95  94.381 133.2795                  
+## sigma2    122.829 122.452 121.912   95 102.158 144.9319                  
+## sigmaDiff  -9.157  -9.147  -8.301   95 -36.638  17.8521       0     25.18
+## nu         38.051  29.367  14.967   95   4.129  97.6668                  
+## log10nu     1.465   1.468   1.516   95   0.853   2.0711                  
+## effSz      -0.266  -0.265  -0.257   95  -0.581   0.0418       0      4.65</code></pre>
 <pre class="r"><code>#Creating a plot of the posterior distribution for the difference between groups
 plot(Speaking_best) #the probability that the true value is smaller than zero = 95.5%</code></pre>
 <p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
@@ -287,15 +287,15 @@ total_volume_best &lt;- BESTmcmc(sociometric.tagged$audio_front_volume_SCALED[so
 total_volume.summary &lt;- summary(total_volume_best)
 total_volume.summary</code></pre>
 <pre><code>##              mean  median    mode HDI%  HDIlo  HDIup compVal %&gt;compVal
-## mu1       -0.1032 -0.1046 -0.0998   95 -0.307  0.100                  
-## mu2       -0.0729 -0.0743 -0.0811   95 -0.291  0.147                  
-## muDiff    -0.0303 -0.0308 -0.0399   95 -0.315  0.256       0      41.6
-## sigma1     0.8209  0.8179  0.8125   95  0.634  1.015                  
-## sigma2     0.9059  0.9019  0.8878   95  0.717  1.109                  
-## sigmaDiff -0.0850 -0.0847 -0.0850   95 -0.311  0.132       0      22.2
-## nu        11.3982  7.7409  5.1934   95  2.298 32.126                  
-## log10nu    0.9420  0.8888  0.7919   95  0.474  1.549                  
-## effSz     -0.0352 -0.0357 -0.0502   95 -0.370  0.292       0      41.6</code></pre>
+## mu1       -0.1034 -0.1048 -0.1063   95 -0.301  0.106                  
+## mu2       -0.0726 -0.0740 -0.0750   95 -0.289  0.149                  
+## muDiff    -0.0308 -0.0307 -0.0431   95 -0.318  0.250       0      41.6
+## sigma1     0.8199  0.8172  0.8231   95  0.632  1.014                  
+## sigma2     0.9051  0.9010  0.8945   95  0.714  1.105                  
+## sigmaDiff -0.0852 -0.0854 -0.0828   95 -0.303  0.139       0      22.2
+## nu        11.1234  7.7187  5.2945   95  2.313 31.044                  
+## log10nu    0.9374  0.8875  0.8058   95  0.476  1.537                  
+## effSz     -0.0359 -0.0357 -0.0523   95 -0.368  0.289       0      41.6</code></pre>
 <pre class="r"><code>#Creating a plot of the posterior distribution for the difference between groups
 plot(total_volume_best)</code></pre>
 <p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
@@ -317,15 +317,15 @@ variation_volume_best &lt;- BESTmcmc(sociometric.tagged$audio_front_vol_consiste
 variation_volume.summary &lt;- summary(variation_volume_best)
 variation_volume.summary</code></pre>
 <pre><code>##              mean  median    mode HDI%  HDIlo   HDIup compVal %&gt;compVal
-## mu1        0.0351  0.0348  0.0334   95 -0.188   0.254                  
-## mu2       -0.0542 -0.0539 -0.0483   95 -0.262   0.156                  
-## muDiff     0.0893  0.0887  0.0820   95 -0.209   0.397       0      72.1
-## sigma1     1.0046  0.9999  0.9891   95  0.849   1.173                  
-## sigma2     0.9782  0.9740  0.9735   95  0.830   1.140                  
-## sigmaDiff  0.0264  0.0261  0.0248   95 -0.197   0.247       0      59.2
-## nu        47.0850 38.8015 23.4060   95  6.368 110.510                  
-## log10nu    1.5836  1.5888  1.5960   95  1.025   2.113                  
-## effSz      0.0902  0.0898  0.0857   95 -0.212   0.397       0      72.1</code></pre>
+## mu1        0.0365  0.0362  0.0338   95 -0.187   0.257                  
+## mu2       -0.0546 -0.0546 -0.0552   95 -0.261   0.157                  
+## muDiff     0.0911  0.0916  0.0932   95 -0.210   0.397       0      72.2
+## sigma1     1.0049  1.0000  0.9893   95  0.842   1.168                  
+## sigma2     0.9785  0.9741  0.9672   95  0.828   1.138                  
+## sigmaDiff  0.0264  0.0255  0.0253   95 -0.190   0.253       0      59.2
+## nu        47.1148 38.9220 24.6997   95  6.287 110.205                  
+## log10nu    1.5845  1.5902  1.6094   95  1.042   2.125                  
+## effSz      0.0920  0.0925  0.0961   95 -0.209   0.399       0      72.2</code></pre>
 <pre class="r"><code>#Creating a plot of the posterior distribution for the difference between groups
 plot(variation_volume_best)</code></pre>
 <p><img src="Sociometric_bayesian_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>

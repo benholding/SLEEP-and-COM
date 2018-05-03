@@ -18,6 +18,7 @@ ipak <- function(pkg){
 packages <- c("brms", "plyr", "dplyr", "data.table", "lubridate", "tidyr", "apaStyle","sjstats", "BEST", "ggridges", "ggpubr", "tidybayes") #packages that are required
 suppressPackageStartupMessages(ipak(packages))
 
+set.seed(782349)
 ```
 
 
@@ -92,6 +93,7 @@ legoData_final[which(legoData_final$SD_beskrivare == 1 & legoData_final$SD_bygga
 ## Model building task
 ###SCORE
 ```{r SCORE, cache = TRUE}
+
 #set the priors
 priors_score = c(set_prior("normal(0,2.25)", class = "b", lb = -9, ub = 9))
 
@@ -151,8 +153,7 @@ cumulative.model <- brm(Correct ~ SD_beskrivare+SD_byggare,
                         prior=priors_score, 
                         sample_prior = T, 
                         cores = 4,
-                        family = cumulative,
-                        iter = 1000000)
+                        family = cumulative)
 
 plot(cumulative.model) #seems fine
 pp_check(cumulative.model) #seems a much better fit
@@ -190,6 +191,7 @@ plot(h0.Byggare)
 
 ### TIME (seconds)
 ```{r TIME, cache = TRUE}
+
 #Set the prior
 priors_TIME = c(set_prior("normal(0,150)", class = "b", lb = -600, ub = 600)) 
 
@@ -270,6 +272,7 @@ TIME.directed.h0.Byggare <- hypothesis(TIME.gaussian.model, "SD_byggare1 < 0") #
 
 ### EFFICIENCY
 ```{r EFFICIENCY, cache = TRUE}
+
 #setting the priors
 priors_EFF = c(set_prior("normal(0,0.5)", class = "b", lb = -2, ub = 2))
 
@@ -393,7 +396,7 @@ setwd(myoriginalwd)
 
 ```
 
-```{r, include=FALSE}
+```{r, eval=F, include=FALSE}
 #Creating plots for manuscript
 plot(h0.Beskrivare)
 plot(h0.Byggare)

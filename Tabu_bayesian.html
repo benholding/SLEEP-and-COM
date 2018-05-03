@@ -259,30 +259,26 @@ priors_tabu = c(set_prior(&quot;normal(0,1.5)&quot;, class = &quot;b&quot;))
 #what is an estimat here: It is the estimated amount by which the log odds of the DV (score) would increase if IV (Sleepdep) were one unit higher.
 
 # Building the model
-tabu.intercept.model &lt;- brm(Correct ~ 1 + (1|pair), Tabu_with_rounds, sample_prior = T, cores = 4,family = poisson())</code></pre>
+tabu.intercept.model &lt;- brm(Correct ~ 1  + (1|pair), Tabu_with_rounds, sample_prior = T, cores = 4,family = poisson())</code></pre>
 <pre><code>## Compiling the C++ model</code></pre>
 <pre><code>## Start sampling</code></pre>
 <pre><code>## Warning: There were 1 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
 ## http://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded</code></pre>
 <pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
-<pre class="r"><code>tabu.Speaker.model &lt;- brm(Correct ~ Speaker_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())</code></pre>
+<pre class="r"><code>tabu.Speaker.model &lt;- brm(Correct ~ Speaker_SD  + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre><code>## Warning: There were 1 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
 ## http://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded
 
 ## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
-<pre class="r"><code>tabu.guesser.model &lt;- brm(Correct ~ Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())</code></pre>
+<pre class="r"><code>tabu.guesser.model &lt;- brm(Correct ~ Guesser_SD  + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
-<pre class="r"><code>tabu.both.model &lt;- brm(Correct~ Speaker_SD+Guesser_SD + (1|pair) + (1|Guesser_ID) + (1|Speaker_ID), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())</code></pre>
+<pre class="r"><code>tabu.both.model &lt;- brm(Correct~ Speaker_SD+Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
-<pre><code>## Warning: There were 4 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help. See
-## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup
-
-## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
-<pre class="r"><code>tabu.interaction.model &lt;- brm(Correct ~ Speaker_SD*Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())</code></pre>
+<pre class="r"><code>tabu.interaction.model &lt;- brm(Correct ~ Speaker_SD*Guesser_SD  + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>##### model comparison
@@ -296,18 +292,18 @@ compare_ic(tabu.model1.waic,tabu.model2.waic,tabu.model3.waic,tabu.model4.waic,t
 ## tabu.intercept.model                          1701.69 22.67
 ## tabu.Speaker.model                            1702.58 22.73
 ## tabu.guesser.model                            1702.62 22.73
-## tabu.both.model                               1705.03 22.61
+## tabu.both.model                               1703.20 22.80
 ## tabu.interaction.model                        1703.91 22.80
 ## tabu.intercept.model - tabu.Speaker.model       -0.89  0.37
 ## tabu.intercept.model - tabu.guesser.model       -0.93  0.94
-## tabu.intercept.model - tabu.both.model          -3.33  1.64
+## tabu.intercept.model - tabu.both.model          -1.50  1.07
 ## tabu.intercept.model - tabu.interaction.model   -2.21  1.22
 ## tabu.Speaker.model - tabu.guesser.model         -0.04  0.92
-## tabu.Speaker.model - tabu.both.model            -2.45  1.63
+## tabu.Speaker.model - tabu.both.model            -0.62  1.01
 ## tabu.Speaker.model - tabu.interaction.model     -1.32  1.13
-## tabu.guesser.model - tabu.both.model            -2.41  1.28
+## tabu.guesser.model - tabu.both.model            -0.58  0.37
 ## tabu.guesser.model - tabu.interaction.model     -1.28  0.67
-## tabu.both.model - tabu.interaction.model         1.12  1.40</code></pre>
+## tabu.both.model - tabu.interaction.model        -0.71  0.56</code></pre>
 <pre class="r"><code>tabu.model1.LOO &lt;- LOO(tabu.intercept.model) #best model
 tabu.model2.LOO &lt;- LOO(tabu.Speaker.model) 
 tabu.model3.LOO &lt;- LOO(tabu.guesser.model)
@@ -318,66 +314,81 @@ compare_ic(tabu.model1.LOO,tabu.model2.LOO,tabu.model3.LOO,tabu.model4.LOO,tabu.
 ## tabu.intercept.model                          1702.19 22.71
 ## tabu.Speaker.model                            1703.02 22.76
 ## tabu.guesser.model                            1703.10 22.76
-## tabu.both.model                               1705.74 22.65
+## tabu.both.model                               1703.72 22.85
 ## tabu.interaction.model                        1704.48 22.85
 ## tabu.intercept.model - tabu.Speaker.model       -0.83  0.37
 ## tabu.intercept.model - tabu.guesser.model       -0.91  0.94
-## tabu.intercept.model - tabu.both.model          -3.55  1.65
+## tabu.intercept.model - tabu.both.model          -1.53  1.07
 ## tabu.intercept.model - tabu.interaction.model   -2.29  1.23
 ## tabu.Speaker.model - tabu.guesser.model         -0.07  0.92
-## tabu.Speaker.model - tabu.both.model            -2.72  1.64
+## tabu.Speaker.model - tabu.both.model            -0.70  1.02
 ## tabu.Speaker.model - tabu.interaction.model     -1.46  1.15
-## tabu.guesser.model - tabu.both.model            -2.65  1.29
+## tabu.guesser.model - tabu.both.model            -0.62  0.38
 ## tabu.guesser.model - tabu.interaction.model     -1.39  0.68
-## tabu.both.model - tabu.interaction.model         1.26  1.41</code></pre>
+## tabu.both.model - tabu.interaction.model        -0.77  0.57</code></pre>
 <pre class="r"><code>### what about other response distributions?
-
-tabu.cumulative.model &lt;- brm(Correct ~ Speaker_SD+Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = cumulative)</code></pre>
+tabu.gaussian.model &lt;- brm(Correct ~ Speaker_SD+Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = gaussian)</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
-<pre class="r"><code>tabu.cumulative.model.waic &lt;- WAIC(tabu.cumulative.model) #poisson is best
-compare_ic(tabu.model4.waic, tabu.cumulative.model.waic)</code></pre>
-<pre><code>##                                            WAIC    SE
-## tabu.both.model                         1705.03 22.61
-## tabu.cumulative.model                   1663.53 31.67
-## tabu.both.model - tabu.cumulative.model   41.50 14.81</code></pre>
-<pre class="r"><code>tabu.both.model &lt;- brm(Correct~ Speaker_SD+Guesser_SD + (1|pair), 
-                       Tabu_with_rounds,
-                       prior=priors_tabu, 
-                       sample_prior = T, 
-                       cores = 4,
-                       family = poisson(),
-                       iter = 100000)</code></pre>
+<pre class="r"><code>tabu.cumulative.model &lt;- brm(Correct ~ Speaker_SD+Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = cumulative)</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
-<pre><code>## Warning: There were 60 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
-## http://mc-stan.org/misc/warnings.html#maximum-treedepth-exceeded
+<pre class="r"><code>tabu.gaussian.model.waic &lt;- WAIC(tabu.gaussian.model) 
+tabu.cumulative.model.waic &lt;- WAIC(tabu.cumulative.model) 
 
-## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
+compare_ic(tabu.model4.waic,tabu.gaussian.model.waic, tabu.cumulative.model.waic) #cumulative is best</code></pre>
+<pre><code>##                                                WAIC    SE
+## tabu.both.model                             1703.20 22.80
+## tabu.gaussian.model                         1713.23 33.44
+## tabu.cumulative.model                       1663.53 31.67
+## tabu.both.model - tabu.gaussian.model        -10.03 16.99
+## tabu.both.model - tabu.cumulative.model       39.67 14.22
+## tabu.gaussian.model - tabu.cumulative.model   49.70 10.02</code></pre>
+<pre class="r"><code>tabu.gaussian.model.LOO &lt;- LOO(tabu.gaussian.model) 
+tabu.cumulative.model.LOO &lt;- LOO(tabu.cumulative.model) </code></pre>
+<pre><code>## Warning: Found 1 observations with a pareto_k &gt; 0.7 in model
+## &#39;tabu.cumulative.model&#39;. It is recommended to set &#39;reloo = TRUE&#39; in order
+## to calculate the ELPD without the assumption that these observations are
+## negligible. This will refit the model 1 times to compute the ELPDs for the
+## problematic observations directly.</code></pre>
+<pre class="r"><code>compare_ic(tabu.model4.LOO,tabu.gaussian.model.LOO,tabu.cumulative.model.LOO) #cumulative is best</code></pre>
+<pre><code>##                                               LOOIC    SE
+## tabu.both.model                             1703.72 22.85
+## tabu.gaussian.model                         1714.70 33.55
+## tabu.cumulative.model                       1665.04 31.99
+## tabu.both.model - tabu.gaussian.model        -10.98 17.05
+## tabu.both.model - tabu.cumulative.model       38.68 14.63
+## tabu.gaussian.model - tabu.cumulative.model   49.66 10.33</code></pre>
 <pre class="r"><code>####best model 
-plot(tabu.both.model)</code></pre>
-<p><img src="Tabu_bayesian_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
-<pre class="r"><code>pp_check(tabu.both.model)</code></pre>
+plot(tabu.cumulative.model)</code></pre>
+<p><img src="Tabu_bayesian_files/figure-html/unnamed-chunk-3-1.png" width="672" /><img src="Tabu_bayesian_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+<pre class="r"><code>pp_check(tabu.cumulative.model)</code></pre>
 <pre><code>## Using 10 posterior samples for ppc type &#39;dens_overlay&#39; by default.</code></pre>
-<p><img src="Tabu_bayesian_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
-<pre class="r"><code>tabu.both.model</code></pre>
-<pre><code>##  Family: poisson(log) 
+<p><img src="Tabu_bayesian_files/figure-html/unnamed-chunk-3-3.png" width="672" /></p>
+<pre class="r"><code>tabu.cumulative.model</code></pre>
+<pre><code>##  Family: cumulative(logit) 
 ## Formula: Correct ~ Speaker_SD + Guesser_SD + (1 | pair) 
+##          disc = 1
 ##    Data: Tabu_with_rounds (Number of observations: 540) 
-## Samples: 4 chains, each with iter = 1e+05; warmup = 50000; thin = 1; 
-##          total post-warmup samples = 2e+05
+## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1; 
+##          total post-warmup samples = 4000
 ##     ICs: LOO = NA; WAIC = NA; R2 = NA
 ##  
 ## Group-Level Effects: 
 ## ~pair (Number of levels: 90) 
 ##               Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
-## sd(Intercept)     0.30      0.05     0.20     0.40      73784 1.00
+## sd(Intercept)     1.09      0.14     0.83     1.38       1470 1.00
 ## 
 ## Population-Level Effects: 
-##            Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
-## Intercept      0.58      0.07     0.43     0.72     200000 1.00
-## Speaker_SD     0.01      0.08    -0.14     0.16     200000 1.00
-## Guesser_SD    -0.05      0.08    -0.20     0.10     200000 1.00
+##              Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
+## Intercept[1]    -2.13      0.25    -2.63    -1.65       2324 1.00
+## Intercept[2]    -0.39      0.22    -0.82     0.05       2396 1.00
+## Intercept[3]     1.12      0.23     0.69     1.59       2378 1.00
+## Intercept[4]     2.44      0.26     1.96     2.96       2690 1.00
+## Intercept[5]     4.31      0.37     3.61     5.05       4000 1.00
+## Intercept[6]     7.46      1.29     5.50    10.49       4000 1.00
+## Speaker_SD      -0.00      0.22    -0.42     0.42       4000 1.00
+## Guesser_SD      -0.12      0.21    -0.53     0.31       3145 1.00
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Eff.Sample 
 ## is a crude measure of effective sample size, and Rhat is the potential 
@@ -385,17 +396,17 @@ plot(tabu.both.model)</code></pre>
 <pre class="r"><code>#hypothesis testing
 
 ##HDI
-Taboo.hdi &lt;-sjstats::hdi(tabu.both.model, prob = 0.95)
-hdi.Score_speaker &lt;- Taboo.hdi[2,]; hdi.Score_speaker</code></pre>
+Taboo.hdi &lt;-sjstats::hdi(tabu.cumulative.model, prob = 0.95)
+hdi.Score_speaker &lt;- Taboo.hdi[7,]; hdi.Score_speaker</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   term         hdi.low hdi.high
 ##   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;
-## 1 b_Speaker_SD  -0.143    0.164</code></pre>
-<pre class="r"><code>hdi.Score_guesser &lt;- Taboo.hdi[3,]; hdi.Score_guesser</code></pre>
+## 1 b_Speaker_SD  -0.419    0.426</code></pre>
+<pre class="r"><code>hdi.Score_guesser &lt;- Taboo.hdi[8,]; hdi.Score_guesser</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   term         hdi.low hdi.high
 ##   &lt;chr&gt;          &lt;dbl&gt;    &lt;dbl&gt;
-## 1 b_Guesser_SD  -0.203    0.104</code></pre>
+## 1 b_Guesser_SD  -0.551    0.271</code></pre>
 </div>
 
 

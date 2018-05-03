@@ -18,6 +18,7 @@ ipak <- function(pkg){
 packages <- c("brms", "plyr", "dplyr", "data.table", "lubridate", "tidyr", "xlsx", "tidyr", "apaStyle","sjstats", "BEST", "ggridges", "ggpubr", "tidybayes") #packages that are required
 suppressPackageStartupMessages(ipak(packages))
 
+set.seed(782349)
 ```
 
 
@@ -119,24 +120,24 @@ Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD  == 1 & Tabu_with_rounds$Spea
 Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD  == 1 & Tabu_with_rounds$Speaker_SD == 1),] %>% summarise_all(sd) %>% print.data.frame()
 ```
 
-
 #Analysis for Round score
 ```{r,cache=TRUE}
+
 #Setting the priors
 priors_tabu = c(set_prior("normal(0,1.5)", class = "b"))
 
 #what is an estimat here: It is the estimated amount by which the log odds of the DV (score) would increase if IV (Sleepdep) were one unit higher.
 
 # Building the model
-tabu.intercept.model <- brm(Correct ~ 1 + (1|pair), Tabu_with_rounds, sample_prior = T, cores = 4,family = poisson())
+tabu.intercept.model <- brm(Correct ~ 1  + (1|pair), Tabu_with_rounds, sample_prior = T, cores = 4,family = poisson())
 
-tabu.Speaker.model <- brm(Correct ~ Speaker_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
+tabu.Speaker.model <- brm(Correct ~ Speaker_SD  + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
 
-tabu.guesser.model <- brm(Correct ~ Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
+tabu.guesser.model <- brm(Correct ~ Guesser_SD  + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
 
-tabu.both.model <- brm(Correct~ Speaker_SD+Guesser_SD + (1|pair) + (1|Guesser_ID) + (1|Speaker_ID), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
+tabu.both.model <- brm(Correct~ Speaker_SD+Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
 
-tabu.interaction.model <- brm(Correct ~ Speaker_SD*Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
+tabu.interaction.model <- brm(Correct ~ Speaker_SD*Guesser_SD  + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = poisson())
 
 ##### model comparison
 tabu.model1.waic <- WAIC(tabu.intercept.model) #best model
@@ -154,49 +155,48 @@ tabu.model5.LOO <- LOO(tabu.interaction.model)
 compare_ic(tabu.model1.LOO,tabu.model2.LOO,tabu.model3.LOO,tabu.model4.LOO,tabu.model5.LOO) #same again here
 
 ### what about other response distributions?
+tabu.gaussian.model <- brm(Correct ~ Speaker_SD+Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = gaussian)
 
 tabu.cumulative.model <- brm(Correct ~ Speaker_SD+Guesser_SD + (1|pair), Tabu_with_rounds,prior=priors_tabu, sample_prior = T, cores = 4,family = cumulative)
 
-tabu.cumulative.model.waic <- WAIC(tabu.cumulative.model) #poisson is best
-compare_ic(tabu.model4.waic, tabu.cumulative.model.waic)
+tabu.gaussian.model.waic <- WAIC(tabu.gaussian.model) 
+tabu.cumulative.model.waic <- WAIC(tabu.cumulative.model) 
 
-tabu.both.model <- brm(Correct~ Speaker_SD+Guesser_SD + (1|pair), 
-                       Tabu_with_rounds,
-                       prior=priors_tabu, 
-                       sample_prior = T, 
-                       cores = 4,
-                       family = poisson(),
-                       iter = 100000)
+compare_ic(tabu.model4.waic,tabu.gaussian.model.waic, tabu.cumulative.model.waic) #cumulative is best
+
+tabu.gaussian.model.LOO <- LOO(tabu.gaussian.model) 
+tabu.cumulative.model.LOO <- LOO(tabu.cumulative.model) 
+compare_ic(tabu.model4.LOO,tabu.gaussian.model.LOO,tabu.cumulative.model.LOO) #cumulative is best
 
 ####best model 
-plot(tabu.both.model)
-pp_check(tabu.both.model)
-tabu.both.model
+plot(tabu.cumulative.model)
+pp_check(tabu.cumulative.model)
+tabu.cumulative.model
 
 #hypothesis testing
 
 ##HDI
-Taboo.hdi <-sjstats::hdi(tabu.both.model, prob = 0.95)
-hdi.Score_speaker <- Taboo.hdi[2,]; hdi.Score_speaker
-hdi.Score_guesser <- Taboo.hdi[3,]; hdi.Score_guesser
+Taboo.hdi <-sjstats::hdi(tabu.cumulative.model, prob = 0.95)
+hdi.Score_speaker <- Taboo.hdi[7,]; hdi.Score_speaker
+hdi.Score_guesser <- Taboo.hdi[8,]; hdi.Score_guesser
 ```
 
 
-```{r, eval=FALSE, include=FALSE}
+```{r, include=FALSE}
 #Creating tables for the manuscript
 ## Bayes Factor
-tabu.h0.Speaker <- hypothesis(tabu.both.model, "Speaker_SD = 0"); plot(tabu.h0.Speaker)
-tabu.h0.guesser <- hypothesis(tabu.both.model, "Guesser_SD = 0"); plot(tabu.h0.guesser)
+tabu.h0.Speaker <- hypothesis(tabu.cumulative.model, "Speaker_SD = 0"); plot(tabu.h0.Speaker)
+tabu.h0.guesser <- hypothesis(tabu.cumulative.model, "Guesser_SD = 0"); plot(tabu.h0.guesser)
 
 
 simple_taboo <- data.frame(row.names = "Percentage change",
                          Speaker_mu = tabu.h0.Speaker$hypothesis$Estimate,
-                         Speaker_HDI_low = hdi.Score_speaker[1],
-                         Speaker_HDI_high = hdi.Score_speaker[2],
+                         Speaker_HDI_low = hdi.Score_speaker[2],
+                         Speaker_HDI_high = hdi.Score_speaker[3],
                          Speaker_sigma = tabu.h0.Speaker$hypothesis$Est.Error,
                          Guesser_mu = tabu.h0.guesser$hypothesis$Estimate,
-                         Guesser_HDI_low = hdi.Score_guesser[1],
-                         Guesser_HDI_high = hdi.Score_guesser[2],
+                         Guesser_HDI_low = hdi.Score_guesser[2],
+                         Guesser_HDI_high = hdi.Score_guesser[3],
                          Guesser_sigma = tabu.h0.guesser$hypothesis$Est.Error)
 
 Taboo_table <- round(simple_taboo,2)
@@ -219,7 +219,7 @@ setwd(myoriginalwd)
 ```
 
 
-```{r, eval=FALSE, include=F}
+```{r, eval=F, include=F}
 #Creating plots for manuscript
 
 plot(tabu.h0.Speaker)

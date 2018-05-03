@@ -225,9 +225,6 @@ setwd(myoriginalwd)
 plot(tabu.h0.Speaker)
 plot(tabu.h0.guesser)
 
-
-
-
 Tabu.plot.data <- melt(cbind("Speaker" = tabu.h0.Speaker$samples$H1, 
                             "Guesser" = tabu.h0.guesser$samples$H1,
                             "prior" = tabu.h0.guesser$prior_samples$H1))

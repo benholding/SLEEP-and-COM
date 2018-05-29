@@ -24,6 +24,10 @@ suppressPackageStartupMessages(ipak(packages))
 
 set.seed(782349)
 
+#making seperate folder for tables and plots
+mainDir <- getwd()
+subDir <- "Tables_and_plots"
+ifelse(!dir.exists(file.path(mainDir, subDir)), dir.create(file.path(mainDir, subDir)), FALSE)
 ```
 
 
@@ -60,13 +64,6 @@ Speaking_best <- BESTmcmc(sociometric.tagged$speech_profile_total_speaking[socio
                           sociometric.tagged$speech_profile_total_speaking[sociometric.tagged$SD ==0],
                           priors = Speaking.priors,
                           parallel = T)
-
-#running the same to get the priors
-Speaking_best_priors <- BESTmcmc(sociometric.tagged$speech_profile_total_speaking[sociometric.tagged$SD ==1],
-                          sociometric.tagged$speech_profile_total_speaking[sociometric.tagged$SD ==0],
-                          priors = Speaking.priors,
-                          parallel = T,
-                          doPriorsOnly = T)
 
 
 # check the output
@@ -179,51 +176,6 @@ apa.table(data = Sociometric_APA_table,
           note = "Note. HDI = Highest Density Interval; Std.dev = residual standard deviation",
           save = T)$table
 setwd(myoriginalwd)
-```
-
-```{r, include=FALSE, eval=FALSE}
-
-sociometric.speechduration.data <- melt(cbind("sleep deprivation" = Speaking_best$mu1, 
-                            "control sleep" = Speaking_best$mu2,
-                            "prior" = Speaking_best_priors$mu1))
-
-Speech.duration.plot <- ggdensity(sociometric.speechduration.data, x = "value", 
-   rug = F,
-   color = "Var2",
-   fill = "Var2",
-   xlim = c(550, 700),
-   xlab = "Speech Duration",
-   add = "mean",
-   palette = c("#E495A5", "#39BEB1","#ABB065")) + 
-  stat_pointintervalh(aes(y = -0.025), 
-                      data = sociometric.speechduration.data[which(sociometric.speechduration.data$Var2 == "sleep deprivation"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#E495A5") +
-  stat_pointintervalh(aes(y = -0.05), 
-                      data = sociometric.speechduration.data[which(sociometric.speechduration.data$Var2 == "control sleep"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#39BEB1") +
-  annotate("text", label = "80% and 95% HDI", x = 20.5, y = -0.044, hjust = 0, vjust = 0.3)
-
-#####
-
-sociometric.volumeVariation.data <- melt(cbind("sleep deprivation" = variation_volume_best$mu1, 
-                            "control sleep" = variation_volume_best$mu2))
-
-Speech.volume.plot <- ggdensity(sociometric.volumeVariation.data, x = "value", 
-   rug = F,
-   color = "Var2",
-   fill = "Var2",
-   xlim = c(0.53, 0.65),
-   xlab = "Speech Volume Consistency (1 = max consistency)",
-   add = "mean",
-   palette = c("#E495A5", "#39BEB1")) + 
-  stat_pointintervalh(aes(y = -50), 
-                      data = sociometric.volume.data[which(sociometric.volumeVariation.data$Var2 == "sleep deprivation"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#E495A5") +
-  stat_pointintervalh(aes(y = -100), 
-                      data = sociometric.volume.data[which(sociometric.volumeVariation.data$Var2 == "control sleep"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#39BEB1") +
-  annotate("text", label = "80% and 95% HDI", x = 0.014, y = -75, hjust = 0, vjust = 0.3)
-
-###
-sociometric.volumeVariation.data <- melt(cbind("sleep deprivation" = total_volume_best$mu1, 
-                            "control sleep" = total_volume_best$mu2))
-
 
 
 ```

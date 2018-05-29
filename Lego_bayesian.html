@@ -238,12 +238,12 @@ legoData_final[which(legoData_final$SD_beskrivare != legoData_final$SD_byggare),
 legoData_final[which(legoData_final$SD_beskrivare == 1 &amp; legoData_final$SD_byggare == 1),]  %&gt;% 
   summarise(Score_mean=mean(Correct,na.rm=T),Time_mean=mean(TimeSec,na.rm=T),efficiency_mean=mean(efficiency_scaled,na.rm=T))</code></pre>
 <pre><code>##   Score_mean Time_mean efficiency_mean
-## 1   6.148148   528.037     0.002686968</code></pre>
+## 1   6.142857   528.037     0.002686968</code></pre>
 <pre class="r"><code>#Standard deviation (Score, Time &amp; Efficiency) for pairs where both partiicpants are sleep deprived
 legoData_final[which(legoData_final$SD_beskrivare == 1 &amp; legoData_final$SD_byggare == 1),]  %&gt;% 
   summarise(Score_sd=sd(Correct,na.rm=T),Time_sd=sd(TimeSec,na.rm=T),efficiency_sd=sd(efficiency_scaled,na.rm=T))</code></pre>
 <pre><code>##   Score_sd  Time_sd efficiency_sd
-## 1 2.684768 90.11167     0.9508417</code></pre>
+## 1 2.634729 90.11167     0.9508417</code></pre>
 </div>
 <div id="inferential-statistics" class="section level1">
 <h1>Inferential statistics</h1>
@@ -278,21 +278,21 @@ model4.waic &lt;- WAIC(brms.interaction.model)
 modelbyggare.waic &lt;- WAIC(brms.Byggare.model)
 compare_ic(model1.waic,model2.waic,modelbyggare.waic,model3.waic,model4.waic)</code></pre>
 <pre><code>##                                                  WAIC    SE
-## brms.intercept.model                           441.91 11.19
-## brms.Beskrivare.model                          442.29 11.40
-## brms.Byggare.model                             439.53 12.00
-## brms.BB.model                                  437.87 13.00
-## brms.interaction.model                         438.31 12.67
-## brms.intercept.model - brms.Beskrivare.model    -0.38  2.40
-## brms.intercept.model - brms.Byggare.model        2.38  3.93
-## brms.intercept.model - brms.BB.model             4.04  5.94
-## brms.intercept.model - brms.interaction.model    3.60  6.06
-## brms.Beskrivare.model - brms.Byggare.model       2.76  4.85
-## brms.Beskrivare.model - brms.BB.model            4.42  5.10
-## brms.Beskrivare.model - brms.interaction.model   3.98  5.20
-## brms.Byggare.model - brms.BB.model               1.66  3.93
-## brms.Byggare.model - brms.interaction.model      1.22  4.19
-## brms.BB.model - brms.interaction.model          -0.44  1.41</code></pre>
+## brms.intercept.model                           445.84 11.32
+## brms.Beskrivare.model                          446.47 11.57
+## brms.Byggare.model                             443.54 12.25
+## brms.BB.model                                  441.80 13.23
+## brms.interaction.model                         442.28 12.88
+## brms.intercept.model - brms.Beskrivare.model    -0.62  2.32
+## brms.intercept.model - brms.Byggare.model        2.31  3.91
+## brms.intercept.model - brms.BB.model             4.04  6.04
+## brms.intercept.model - brms.interaction.model    3.56  6.13
+## brms.Beskrivare.model - brms.Byggare.model       2.93  4.79
+## brms.Beskrivare.model - brms.BB.model            4.67  5.22
+## brms.Beskrivare.model - brms.interaction.model   4.18  5.31
+## brms.Byggare.model - brms.BB.model               1.74  3.97
+## brms.Byggare.model - brms.interaction.model      1.25  4.20
+## brms.BB.model - brms.interaction.model          -0.49  1.42</code></pre>
 <pre class="r"><code>model1.loo &lt;- LOO(brms.intercept.model)
 model2.loo &lt;- LOO(brms.Beskrivare.model)
 model3.loo &lt;- LOO(brms.BB.model) #best fitting model
@@ -300,21 +300,21 @@ model4.loo &lt;- LOO(brms.interaction.model)
 modelbyggare.loo &lt;- LOO(brms.Byggare.model)
 compare_ic(model1.loo,model2.loo,modelbyggare.loo,model3.loo,model4.loo)</code></pre>
 <pre><code>##                                                 LOOIC    SE
-## brms.intercept.model                           441.91 11.19
-## brms.Beskrivare.model                          442.30 11.40
-## brms.Byggare.model                             439.54 12.00
-## brms.BB.model                                  437.89 13.01
-## brms.interaction.model                         438.35 12.68
-## brms.intercept.model - brms.Beskrivare.model    -0.39  2.40
-## brms.intercept.model - brms.Byggare.model        2.37  3.93
-## brms.intercept.model - brms.BB.model             4.02  5.94
-## brms.intercept.model - brms.interaction.model    3.56  6.06
-## brms.Beskrivare.model - brms.Byggare.model       2.76  4.85
-## brms.Beskrivare.model - brms.BB.model            4.41  5.10
-## brms.Beskrivare.model - brms.interaction.model   3.95  5.20
-## brms.Byggare.model - brms.BB.model               1.65  3.93
-## brms.Byggare.model - brms.interaction.model      1.19  4.19
-## brms.BB.model - brms.interaction.model          -0.46  1.40</code></pre>
+## brms.intercept.model                           445.84 11.32
+## brms.Beskrivare.model                          446.47 11.57
+## brms.Byggare.model                             443.55 12.26
+## brms.BB.model                                  441.82 13.24
+## brms.interaction.model                         442.31 12.89
+## brms.intercept.model - brms.Beskrivare.model    -0.63  2.32
+## brms.intercept.model - brms.Byggare.model        2.29  3.91
+## brms.intercept.model - brms.BB.model             4.03  6.05
+## brms.intercept.model - brms.interaction.model    3.53  6.14
+## brms.Beskrivare.model - brms.Byggare.model       2.92  4.79
+## brms.Beskrivare.model - brms.BB.model            4.66  5.23
+## brms.Beskrivare.model - brms.interaction.model   4.16  5.32
+## brms.Byggare.model - brms.BB.model               1.73  3.98
+## brms.Byggare.model - brms.interaction.model      1.23  4.20
+## brms.BB.model - brms.interaction.model          -0.50  1.42</code></pre>
 <pre class="r"><code>#model checking
 plot(brms.BB.model) #seems fine</code></pre>
 <p><img src="Lego_bayesian_files/figure-html/SCORE-1.png" width="672" /></p>
@@ -331,7 +331,7 @@ gaussian.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final.corr
 <pre class="r"><code>exgaussian.model &lt;- brms.BB.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final.correctPlus1,prior=priors_score, sample_prior = T, cores = 4,family = exgaussian)</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
-<pre><code>## Warning: There were 499 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help. See
+<pre><code>## Warning: There were 479 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help. See
 ## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
 <pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
 <pre class="r"><code>student.model &lt;- brms.BB.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final.correctPlus1,prior=priors_score, sample_prior = T, cores = 4,family = student)</code></pre>
@@ -350,21 +350,21 @@ hurdle_lognormal.waic &lt;- WAIC(hurdle_lognormal.model)
 cumulative.model.waic &lt;- WAIC(cumulative.model) #best fitting distribution
 compare_ic(gaussian.model.waic, exgaussian.model.waic, student.model.waic,hurdle_lognormal.waic, cumulative.model.waic)</code></pre>
 <pre><code>##                                             WAIC    SE
-## gaussian.model                            437.89 12.95
-## exgaussian.model                          438.74 12.87
-## student.model                             438.51 13.37
-## hurdle_lognormal.model                    501.34 12.84
-## cumulative.model                          365.54 17.06
-## gaussian.model - exgaussian.model          -0.85  0.15
-## gaussian.model - student.model             -0.63  1.00
-## gaussian.model - hurdle_lognormal.model   -63.46  8.34
-## gaussian.model - cumulative.model          72.35 16.14
-## exgaussian.model - student.model            0.22  1.12
-## exgaussian.model - hurdle_lognormal.model -62.61  8.25
-## exgaussian.model - cumulative.model        73.20 16.11
-## student.model - hurdle_lognormal.model    -62.83  9.25
-## student.model - cumulative.model           72.98 15.85
-## hurdle_lognormal.model - cumulative.model 135.81 21.25</code></pre>
+## gaussian.model                            441.67 13.23
+## exgaussian.model                          442.49 13.03
+## student.model                             442.56 13.65
+## hurdle_lognormal.model                    506.25 13.16
+## cumulative.model                          371.12 17.00
+## gaussian.model - exgaussian.model          -0.82  0.23
+## gaussian.model - student.model             -0.89  1.03
+## gaussian.model - hurdle_lognormal.model   -64.58  8.36
+## gaussian.model - cumulative.model          70.55 15.99
+## exgaussian.model - student.model           -0.07  1.21
+## exgaussian.model - hurdle_lognormal.model -63.75  8.21
+## exgaussian.model - cumulative.model        71.37 15.99
+## student.model - hurdle_lognormal.model    -63.69  9.28
+## student.model - cumulative.model           71.44 15.72
+## hurdle_lognormal.model - cumulative.model 135.13 21.17</code></pre>
 <pre class="r"><code>gaussian.model.loo &lt;- LOO(gaussian.model)
 exgaussian.model.loo &lt;- LOO(exgaussian.model)
 student.model.loo &lt;- LOO(student.model)
@@ -372,21 +372,21 @@ hurdle_lognormal.loo &lt;- LOO(hurdle_lognormal.model)
 cumulative.model.loo &lt;- LOO(cumulative.model) #best fitting distribution
 compare_ic(gaussian.model.loo, exgaussian.model.loo, student.model.loo,hurdle_lognormal.loo, cumulative.model.loo)</code></pre>
 <pre><code>##                                            LOOIC    SE
-## gaussian.model                            437.90 12.95
-## exgaussian.model                          438.78 12.89
-## student.model                             438.52 13.38
-## hurdle_lognormal.model                    501.43 12.87
-## cumulative.model                          365.61 17.07
-## gaussian.model - exgaussian.model          -0.88  0.15
-## gaussian.model - student.model             -0.63  1.00
-## gaussian.model - hurdle_lognormal.model   -63.54  8.33
-## gaussian.model - cumulative.model          72.29 16.15
-## exgaussian.model - student.model            0.25  1.12
-## exgaussian.model - hurdle_lognormal.model -62.66  8.25
-## exgaussian.model - cumulative.model        73.17 16.12
-## student.model - hurdle_lognormal.model    -62.91  9.25
-## student.model - cumulative.model           72.91 15.86
-## hurdle_lognormal.model - cumulative.model 135.83 21.27</code></pre>
+## gaussian.model                            441.68 13.23
+## exgaussian.model                          442.51 13.04
+## student.model                             442.57 13.65
+## hurdle_lognormal.model                    506.31 13.18
+## cumulative.model                          371.21 17.01
+## gaussian.model - exgaussian.model          -0.83  0.23
+## gaussian.model - student.model             -0.89  1.02
+## gaussian.model - hurdle_lognormal.model   -64.63  8.36
+## gaussian.model - cumulative.model          70.47 15.99
+## exgaussian.model - student.model           -0.06  1.20
+## exgaussian.model - hurdle_lognormal.model -63.80  8.21
+## exgaussian.model - cumulative.model        71.30 16.00
+## student.model - hurdle_lognormal.model    -63.74  9.28
+## student.model - cumulative.model           71.36 15.73
+## hurdle_lognormal.model - cumulative.model 135.10 21.18</code></pre>
 <pre class="r"><code>#re-running the model w/ the original data set (not plus 1)
 cumulative.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare,
                         data = legoData_final,
@@ -401,28 +401,29 @@ cumulative.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare,
 <pre class="r"><code>pp_check(cumulative.model) #seems a much better fit</code></pre>
 <pre><code>## Using 10 posterior samples for ppc type &#39;dens_overlay&#39; by default.</code></pre>
 <p><img src="Lego_bayesian_files/figure-html/SCORE-6.png" width="672" /></p>
-<pre class="r"><code>cumulative.model #run this to check the parameter estimates</code></pre>
+<pre class="r"><code>Lego.Score.model.summary &lt;- summary(cumulative.model) #run this to check the parameter estimates
+Lego.Score.model.summary</code></pre>
 <pre><code>##  Family: cumulative(logit) 
 ## Formula: Correct ~ SD_beskrivare + SD_byggare 
 ##          disc = 1
-##    Data: legoData_final (Number of observations: 88) 
+##    Data: legoData_final (Number of observations: 89) 
 ## Samples: 4 chains, each with iter = 2000; warmup = 1000; thin = 1; 
 ##          total post-warmup samples = 4000
 ##     ICs: LOO = NA; WAIC = NA; R2 = NA
 ##  
 ## Population-Level Effects: 
 ##                Estimate Est.Error l-95% CI u-95% CI Eff.Sample Rhat
-## Intercept[1]      -3.11      0.49    -4.13    -2.22       4000 1.00
-## Intercept[2]      -2.59      0.43    -3.46    -1.80       4000 1.00
-## Intercept[3]      -2.18      0.39    -2.97    -1.44       4000 1.00
-## Intercept[4]      -1.78      0.38    -2.55    -1.07       4000 1.00
-## Intercept[5]      -1.33      0.35    -2.04    -0.66       4000 1.00
-## Intercept[6]      -0.68      0.33    -1.34    -0.04       4000 1.00
-## Intercept[7]      -0.38      0.32    -1.02     0.26       4000 1.00
-## Intercept[8]       0.36      0.32    -0.25     0.98       4000 1.00
-## Intercept[9]       0.67      0.32     0.04     1.30       4000 1.00
-## SD_beskrivare1     0.86      0.42     0.06     1.69       4000 1.00
-## SD_byggare1       -1.15      0.42    -1.99    -0.36       4000 1.00
+## Intercept[1]      -3.14      0.51    -4.25    -2.22       4000 1.00
+## Intercept[2]      -2.62      0.45    -3.54    -1.79       4000 1.00
+## Intercept[3]      -2.21      0.41    -3.07    -1.47       4000 1.00
+## Intercept[4]      -1.81      0.38    -2.58    -1.09       4000 1.00
+## Intercept[5]      -1.37      0.35    -2.07    -0.68       4000 1.00
+## Intercept[6]      -0.71      0.34    -1.37    -0.06       4000 1.00
+## Intercept[7]      -0.36      0.33    -1.01     0.30       4000 1.00
+## Intercept[8]       0.38      0.32    -0.25     1.01       4000 1.00
+## Intercept[9]       0.68      0.33     0.05     1.33       4000 1.00
+## SD_beskrivare1     0.87      0.42     0.03     1.72       4000 1.00
+## SD_byggare1       -1.18      0.42    -2.03    -0.36       4000 1.00
 ## 
 ## Samples were drawn using sampling(NUTS). For each parameter, Eff.Sample 
 ## is a crude measure of effective sample size, and Rhat is the potential 
@@ -432,36 +433,14 @@ cumulative.model &lt;- brm(Correct ~ SD_beskrivare+SD_byggare,
 score.hdi &lt;- sjstats::hdi(cumulative.model, prob = 0.95)
 hdi.Score_describer &lt;- score.hdi[10,]; hdi.Score_describer</code></pre>
 <pre><code>## # A tibble: 1 x 3
-##   term              hdi.low hdi.high
-##   &lt;chr&gt;               &lt;dbl&gt;    &lt;dbl&gt;
-## 1 b_SD_beskrivare1 0.000439     1.63</code></pre>
+##   term             hdi.low hdi.high
+##   &lt;chr&gt;              &lt;dbl&gt;    &lt;dbl&gt;
+## 1 b_SD_beskrivare1 0.00252     1.67</code></pre>
 <pre class="r"><code>hdi.Score_builder &lt;- score.hdi[11,]; hdi.Score_builder</code></pre>
 <pre><code>## # A tibble: 1 x 3
 ##   term          hdi.low hdi.high
 ##   &lt;chr&gt;           &lt;dbl&gt;    &lt;dbl&gt;
-## 1 b_SD_byggare1   -2.00   -0.380</code></pre>
-<pre class="r"><code>##Bayes Factor
-### For the null
-h0.Beskrivare &lt;- hypothesis(cumulative.model, &quot;SD_beskrivare1 = 0&quot;) #Bayes Factor
-h0.Byggare &lt;- hypothesis(cumulative.model, &quot;SD_byggare1 = 0&quot;) #Bayes Factor
-
-### the for alternative
-point.h0.Beskrivare.BF10 &lt;- 1/h0.Beskrivare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: describer coefficient
-point.h0.Byggare.BF10 &lt;- 1/h0.Byggare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: builder coefficient
-
-### Directed evidence ratio
-directed.h0.Beskrivare &lt;- hypothesis(cumulative.model, &quot;SD_beskrivare1 &lt; 0&quot;) #directed evidence ratio
-directed.h0.Byggare &lt;- hypothesis(cumulative.model, &quot;SD_byggare1 &lt; 0&quot;) #directed evidence ratio
-
-##Standardised effect sizes
-describer_ES &lt;-  h0.Beskrivare$hypothesis$Estimate/9 # 0.10
-Builder_ES &lt;- h0.Byggare$hypothesis$Estimate/9 # -0.12
-
-##plots
-plot(h0.Beskrivare)</code></pre>
-<p><img src="Lego_bayesian_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
-<pre class="r"><code>plot(h0.Byggare)</code></pre>
-<p><img src="Lego_bayesian_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
+## 1 b_SD_byggare1   -1.99   -0.331</code></pre>
 </div>
 <div id="time-seconds" class="section level3">
 <h3>TIME (seconds)</h3>
@@ -470,18 +449,23 @@ priors_TIME = c(set_prior(&quot;normal(0,150)&quot;, class = &quot;b&quot;, lb =
 
 #Bayesian linear models (adding 1 coefficient at a time)
 TIME.intercept.model &lt;- brm(TimeSec ~ 1, legoData_final, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model</code></pre>
 <pre><code>## Start sampling</code></pre>
 <pre class="r"><code>TIME.Beskrivare.model &lt;- brm(TimeSec ~ SD_beskrivare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>TIME.Byggare.model &lt;- brm(TimeSec ~ SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>TIME.BB.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>TIME.interaction.model &lt;- brm(TimeSec ~ SD_beskrivare*SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4) </code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>TIME1.waic &lt;- WAIC(TIME.intercept.model) #best model
@@ -530,21 +514,26 @@ compare_ic(TIME1.loo,TIME2.loo,TIME3.loo,TIME4.loo,TIME5.loo)</code></pre>
 ## TIME.BB.model - TIME.interaction.model           -1.83  0.78</code></pre>
 <pre class="r"><code>##### checking different distributions
 TIME.gaussian.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = gaussian)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>TIME.exgaussian.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = exgaussian)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre><code>## Warning: There were 1292 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help. See
 ## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
 <pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
 <pre class="r"><code>TIME.student.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = student)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>TIME.hurdle_lognormal.model  &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = hurdle_lognormal)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>TIME.weibull.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = weibull)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre><code>## Warning: There were 1166 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
@@ -553,9 +542,11 @@ TIME.gaussian.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final
 ## http://mc-stan.org/misc/warnings.html#bfmi-low</code></pre>
 <pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
 <pre class="r"><code>TIME.lognormal.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = lognormal)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>TIME.exponential.model &lt;- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_TIME, sample_prior = T, cores = 4,family = exponential)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre><code>## Warning: There were 643 transitions after warmup that exceeded the maximum treedepth. Increase max_treedepth above 10. See
@@ -617,7 +608,8 @@ plot(TIME.gaussian.model) </code></pre>
 <pre class="r"><code>pp_check(TIME.gaussian.model)</code></pre>
 <pre><code>## Using 10 posterior samples for ppc type &#39;dens_overlay&#39; by default.</code></pre>
 <p><img src="Lego_bayesian_files/figure-html/TIME-2.png" width="672" /></p>
-<pre class="r"><code>TIME.gaussian.model</code></pre>
+<pre class="r"><code>Lego.time.model.summary &lt;- summary(TIME.gaussian.model) #run this to check the parameter estimates
+Lego.time.model.summary</code></pre>
 <pre><code>##  Family: gaussian(identity) 
 ## Formula: TimeSec ~ SD_beskrivare + SD_byggare 
 ##    Data: legoData_final (Number of observations: 88) 
@@ -652,16 +644,6 @@ hdi.Time_describer &lt;- time.hdi[2,]; hdi.Time_describer</code></pre>
 ##   term          hdi.low hdi.high
 ##   &lt;chr&gt;           &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 b_SD_byggare1   -27.4     54.2</code></pre>
-<pre class="r"><code>## Bayes Factor
-TIME.h0.Beskrivare &lt;- hypothesis(TIME.gaussian.model, &quot;SD_beskrivare1 = 0&quot;); plot(TIME.h0.Beskrivare)</code></pre>
-<p><img src="Lego_bayesian_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
-<pre class="r"><code>TIME.h0.Byggare &lt;- hypothesis(TIME.gaussian.model, &quot;SD_byggare1 = 0&quot;); plot(TIME.h0.Byggare)</code></pre>
-<p><img src="Lego_bayesian_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
-<pre class="r"><code>TIME.h0.Beskrivare.BF10 &lt;- 1/TIME.h0.Beskrivare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: describer coefficient
-TIME.h0.Byggare.BF10 &lt;- 1/TIME.h0.Byggare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: builder coefficient
-
-TIME.directed.h0.Beskrivare &lt;- hypothesis(TIME.gaussian.model, &quot;SD_beskrivare1 &lt; 0&quot;) #directed evidence ratio
-TIME.directed.h0.Byggare &lt;- hypothesis(TIME.gaussian.model, &quot;SD_byggare1 &lt; 0&quot;) #directed evidence ratio</code></pre>
 </div>
 <div id="efficiency" class="section level3">
 <h3>EFFICIENCY</h3>
@@ -670,18 +652,23 @@ priors_EFF = c(set_prior(&quot;normal(0,0.5)&quot;, class = &quot;b&quot;, lb = 
 
 #checking models
 EFF.intercept.model &lt;- brm(efficiency_scaled ~ 1, legoData_final, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model</code></pre>
 <pre><code>## Start sampling</code></pre>
 <pre class="r"><code>EFF.Beskrivare.model &lt;- brm(efficiency_scaled ~ SD_beskrivare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>EFF.Byggare.model &lt;- brm(efficiency_scaled ~ SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>EFF.BB.model &lt;- brm(efficiency_scaled ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>EFF.interaction.model &lt;- brm(efficiency_scaled ~ SD_beskrivare*SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>##### model comparison
@@ -731,15 +718,18 @@ compare_ic(EFF.model1.LOO,EFF.model2.LOO,EFF.model3.LOO,EFF.model4.LOO,EFF.model
 ## EFF.BB.model - EFF.interaction.model          -1.12  0.54</code></pre>
 <pre class="r"><code>##### checking different distributions
 EFF.gaussian.model &lt;- brm(efficiency_scaled ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4,family = gaussian)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>EFF.exgaussian.model &lt;- brm(efficiency_scaled ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4,family = exgaussian)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre><code>## Warning: There were 228 divergent transitions after warmup. Increasing adapt_delta above 0.8 may help. See
 ## http://mc-stan.org/misc/warnings.html#divergent-transitions-after-warmup</code></pre>
 <pre><code>## Warning: Examine the pairs() plot to diagnose sampling problems</code></pre>
 <pre class="r"><code>EFF.student.model &lt;- brm(efficiency_scaled ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_EFF, sample_prior = T, cores = 4,family = student)</code></pre>
+<pre><code>## Warning: Rows containing NAs were excluded from the model</code></pre>
 <pre><code>## Compiling the C++ model
 ## Start sampling</code></pre>
 <pre class="r"><code>EFF.gaussian.model.waic &lt;- WAIC(EFF.gaussian.model) 
@@ -768,7 +758,13 @@ compare_ic(EFF.gaussian.model.loo, EFF.exgaussian.model.loo, EFF.student.model.l
 ## EFF.exgaussian.model - EFF.student.model   -0.28  0.93</code></pre>
 <pre class="r"><code>###best model
 
-EFF.BB.model</code></pre>
+plot(EFF.BB.model)</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/EFFICIENCY-1.png" width="672" /></p>
+<pre class="r"><code>pp_check(EFF.BB.model)</code></pre>
+<pre><code>## Using 10 posterior samples for ppc type &#39;dens_overlay&#39; by default.</code></pre>
+<p><img src="Lego_bayesian_files/figure-html/EFFICIENCY-2.png" width="672" /></p>
+<pre class="r"><code>Lego.efficiency.model.summary &lt;- summary(EFF.BB.model) #run this to check the parameter estimates
+Lego.efficiency.model.summary</code></pre>
 <pre><code>##  Family: gaussian(identity) 
 ## Formula: efficiency_scaled ~ SD_beskrivare + SD_byggare 
 ##    Data: legoData_final (Number of observations: 88) 
@@ -789,11 +785,6 @@ EFF.BB.model</code></pre>
 ## Samples were drawn using sampling(NUTS). For each parameter, Eff.Sample 
 ## is a crude measure of effective sample size, and Rhat is the potential 
 ## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
-<pre class="r"><code>plot(EFF.BB.model)</code></pre>
-<p><img src="Lego_bayesian_files/figure-html/EFFICIENCY-1.png" width="672" /></p>
-<pre class="r"><code>pp_check(EFF.BB.model)</code></pre>
-<pre><code>## Using 10 posterior samples for ppc type &#39;dens_overlay&#39; by default.</code></pre>
-<p><img src="Lego_bayesian_files/figure-html/EFFICIENCY-2.png" width="672" /></p>
 <pre class="r"><code>###hypothesis testing
 
 #HDI
@@ -808,16 +799,6 @@ hdi.Efficiency_describer &lt;- efficiency.hdi[2,]; hdi.Efficiency_describer</cod
 ##   term          hdi.low hdi.high
 ##   &lt;chr&gt;           &lt;dbl&gt;    &lt;dbl&gt;
 ## 1 b_SD_byggare1  -0.791  -0.0458</code></pre>
-<pre class="r"><code>#Bayes Factor
-EFF.h0.Beskrivare &lt;- hypothesis(EFF.BB.model, &quot;SD_beskrivare1 = 0&quot;); plot(EFF.h0.Beskrivare)</code></pre>
-<p><img src="Lego_bayesian_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
-<pre class="r"><code>EFF.h0.Byggare &lt;- hypothesis(EFF.BB.model, &quot;SD_byggare1 = 0&quot;); plot(EFF.h0.Byggare)</code></pre>
-<p><img src="Lego_bayesian_files/figure-html/unnamed-chunk-4-2.png" width="672" /></p>
-<pre class="r"><code>EFF.Beskrivare.BF10 &lt;- 1/EFF.h0.Beskrivare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: describer coefficient
-EFF.Byggare.BF10 &lt;- 1/EFF.h0.Byggare$hypothesis$Evid.Ratio #BF10 for point hypothesis re: builder coefficient
-
-EFF.directed.h0.Beskrivare &lt;- hypothesis(EFF.BB.model, &quot;SD_beskrivare1 &lt; 0&quot;) #directed evidence ratio
-EFF.directed.h0.Byggare &lt;- hypothesis(EFF.BB.model, &quot;SD_byggare1 &lt; 0&quot;) #directed evidence ratio</code></pre>
 </div>
 </div>
 </div>

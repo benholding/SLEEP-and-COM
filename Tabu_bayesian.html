@@ -365,7 +365,8 @@ plot(tabu.cumulative.model)</code></pre>
 <pre class="r"><code>pp_check(tabu.cumulative.model)</code></pre>
 <pre><code>## Using 10 posterior samples for ppc type &#39;dens_overlay&#39; by default.</code></pre>
 <p><img src="Tabu_bayesian_files/figure-html/unnamed-chunk-3-3.png" width="672" /></p>
-<pre class="r"><code>tabu.cumulative.model</code></pre>
+<pre class="r"><code>tabu.model.summary &lt;- summary(tabu.cumulative.model) #run this to check the parameter estimates
+tabu.model.summary</code></pre>
 <pre><code>##  Family: cumulative(logit) 
 ## Formula: Correct ~ Speaker_SD + Guesser_SD + (1 | pair) 
 ##          disc = 1
@@ -393,9 +394,7 @@ plot(tabu.cumulative.model)</code></pre>
 ## Samples were drawn using sampling(NUTS). For each parameter, Eff.Sample 
 ## is a crude measure of effective sample size, and Rhat is the potential 
 ## scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
-<pre class="r"><code>#hypothesis testing
-
-##HDI
+<pre class="r"><code>##HDI
 Taboo.hdi &lt;-sjstats::hdi(tabu.cumulative.model, prob = 0.95)
 hdi.Score_speaker &lt;- Taboo.hdi[7,]; hdi.Score_speaker</code></pre>
 <pre><code>## # A tibble: 1 x 3

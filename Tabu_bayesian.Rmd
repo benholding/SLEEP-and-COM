@@ -19,6 +19,11 @@ packages <- c("brms", "plyr", "dplyr", "data.table", "lubridate", "tidyr", "xlsx
 suppressPackageStartupMessages(ipak(packages))
 
 set.seed(782349)
+
+#making seperate folder for tables and plots
+mainDir <- getwd()
+subDir <- "Tables_and_plots"
+ifelse(!dir.exists(file.path(mainDir, subDir)), dir.create(file.path(mainDir, subDir)), FALSE)
 ```
 
 
@@ -62,7 +67,7 @@ colnames(GuesserKey) <- c("Guesser ID","Guesser_SD") #adding condition informati
 tabu1 <- join(tabu.data,SpeakerKey) #adding condition information
 tabu2 <- join(tabu1,GuesserKey) #adding condition information
 
-final.tabu <- select(tabu2,
+final.tabu <- dplyr::select(tabu2,
                      c(pair,
                        `Guesser ID`,
                        Guesser_SD,
@@ -93,19 +98,21 @@ Tabu_with_rounds <- tabu_with_rounds_step1 %>%
   group_by(pair) %>% 
   mutate(Round = cumsum(Tabu_Round)) %>%
   group_by(pair,Round) %>%
-  summarise(Correct = sum(Correct), 
+  dplyr::summarise(Correct = sum(Correct), 
             Guesser_ID = mean(as.numeric(`Guesser ID`)), 
             Guesser_SD = mean(as.numeric(Guesser_SD)),
             Speaker_ID = mean(as.numeric(`Speaker ID`)), 
             Speaker_SD = mean(as.numeric(Speaker_SD)),
             total_attempts = sum(Correct,Pass,ForbiddenContinue,ForbiddenContinue))
+
 Tabu_with_rounds <- as.data.frame(Tabu_with_rounds)
 
 Tabu_with_rounds <- Tabu_with_rounds[which(Tabu_with_rounds$pair != 97),] #removing pair with person under 18 years old. 
 
 Tabu_with_rounds$Score_ratio <- Tabu_with_rounds$Correct/Tabu_with_rounds$total_attempts #3rd outcome variable
 
-
+# calculating N per condition
+table(Tabu_with_rounds$Guesser_SD)/3
 ```
 
 #Descriptive statistics
@@ -171,9 +178,9 @@ compare_ic(tabu.model4.LOO,tabu.gaussian.model.LOO,tabu.cumulative.model.LOO) #c
 ####best model 
 plot(tabu.cumulative.model)
 pp_check(tabu.cumulative.model)
-tabu.cumulative.model
 
-#hypothesis testing
+tabu.model.summary <- summary(tabu.cumulative.model) #run this to check the parameter estimates
+tabu.model.summary
 
 ##HDI
 Taboo.hdi <-sjstats::hdi(tabu.cumulative.model, prob = 0.95)
@@ -184,20 +191,15 @@ hdi.Score_guesser <- Taboo.hdi[8,]; hdi.Score_guesser
 
 ```{r, include=FALSE}
 #Creating tables for the manuscript
-## Bayes Factor
-tabu.h0.Speaker <- hypothesis(tabu.cumulative.model, "Speaker_SD = 0"); plot(tabu.h0.Speaker)
-tabu.h0.guesser <- hypothesis(tabu.cumulative.model, "Guesser_SD = 0"); plot(tabu.h0.guesser)
-
-
 simple_taboo <- data.frame(row.names = "Percentage change",
-                         Speaker_mu = tabu.h0.Speaker$hypothesis$Estimate,
+                         Speaker_mu = tabu.model.summary$fixed["Speaker_SD",1],
                          Speaker_HDI_low = hdi.Score_speaker[2],
                          Speaker_HDI_high = hdi.Score_speaker[3],
-                         Speaker_sigma = tabu.h0.Speaker$hypothesis$Est.Error,
-                         Guesser_mu = tabu.h0.guesser$hypothesis$Estimate,
+                         Speaker_sigma = tabu.model.summary$fixed["Speaker_SD",2],
+                         Guesser_mu = tabu.model.summary$fixed["Guesser_SD",1],
                          Guesser_HDI_low = hdi.Score_guesser[2],
                          Guesser_HDI_high = hdi.Score_guesser[3],
-                         Guesser_sigma = tabu.h0.guesser$hypothesis$Est.Error)
+                         Guesser_sigma = tabu.model.summary$fixed["Guesser_SD",2])
 
 Taboo_table <- round(simple_taboo,2)
 Taboo_APA_table <- cbind(Outcome = row.names(Taboo_table), Taboo_table)
@@ -213,52 +215,7 @@ apa.table(data = Taboo_APA_table,
           number = "1",
           title = "Bayesian Estimation of word guessing game performance",
           filename = "Taboo_table.docx",
-          note = "Note. Effects are on the log scale. HDI = Highest Density Interval; Std.dev = residual standard deviation",
+          note = "Note. HDI = Highest Density Interval; Std.dev = residual standard deviation",
           save = T)$table
 setwd(myoriginalwd)
-```
-
-
-```{r, eval=F, include=F}
-#Creating plots for manuscript
-
-plot(tabu.h0.Speaker)
-plot(tabu.h0.guesser)
-
-Tabu.plot.data <- melt(cbind("Speaker" = tabu.h0.Speaker$samples$H1, 
-                            "Guesser" = tabu.h0.guesser$samples$H1,
-                            "prior" = tabu.h0.guesser$prior_samples$H1))
-
-
-Tabu.plot.option1 <- ggdensity(Tabu.plot.data, x = "value", 
-   rug = F,
-   color = "Var2",
-   fill = "Var2",
-   xlab = "Sleep deprivation effect (log)",
-   xlim = c(-0.5,0.5),
-   add = "mean",
-   palette = c("#E495A5", "#39BEB1","#ABB065")) + 
-  stat_pointintervalh(aes(y = -0.04), 
-                      data = Tabu.plot.data[which(Tabu.plot.data$Var2 == "Speaker"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#E495A5") +
-  stat_pointintervalh(aes(y = -0.05), 
-                      data = Tabu.plot.data[which(Tabu.plot.data$Var2 == "Guesser"),], fun.data = mean_hdih, .prob = c(.95, .80), color = "#39BEB1") +
-  annotate("text", label = "80% and 95% HDI", x = 2, y = -0.06, hjust = 0, vjust = 0.3)
-
-
-tabustep1melt <- as.data.frame(cbind("ID" = 1:length(tabu.h0.Speaker$samples$H1),
-                              "Posterior_Speaker" = tabu.h0.Speaker$samples$H1, 
-                            "Posterior_Guesser" = tabu.h0.guesser$samples$H1,
-                            "prior_Speaker" = tabu.h0.Speaker$prior_samples$H1,
-                            "prior_Guesser" = tabu.h0.guesser$prior_samples$H1))
-
-tabu.ggjoy.data <- tabustep1melt %>% 
-  gather(v, value, Posterior_Speaker:prior_Guesser) %>% 
-   arrange(ID) %>% 
-  separate(v, "_", into = c("posteriorPrior", "Role"))
-
-ggplot(tabu.ggjoy.data,aes(x = value, y = as.factor(Role), fill = posteriorPrior)) +
-  geom_density_ridges(scale = 2,alpha = .5,rel_min_height = 0.01) +  
-  labs(x = "Sleep deprivation effect (log)") +
-  theme(axis.title.y=element_blank(),
-        legend.title=element_blank()) + scale_x_continuous(limits=c(-4, 4)) + scale_fill_cyclical(values = c("#E495A5", "#ABB065"), guide = "legend")
 ```

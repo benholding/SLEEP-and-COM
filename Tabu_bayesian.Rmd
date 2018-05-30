@@ -219,3 +219,49 @@ apa.table(data = Taboo_APA_table,
           save = T)$table
 setwd(myoriginalwd)
 ```
+
+```{r, include=FALSE}
+#removing non-randomised participants (2 pairs)
+#removing pairs with person with no previous sleep history recorded
+Tabu_removed.participants <- Tabu_with_rounds 
+Tabu_removed.participants <- Tabu_removed.participants[which(Tabu_removed.participants$pair != 9),] #removing pair with 118
+Tabu_removed.participants <- Tabu_removed.participants[which(Tabu_removed.participants$pair != 72),] #removing pair with 673
+
+Tabu_removed.participants.model <- brm(Correct ~ Speaker_SD+Guesser_SD + (1|pair), Tabu_removed.participants,prior=priors_tabu, sample_prior = T, cores = 4,family = cumulative)
+########
+
+Tabu_removed.participants_summary <- summary(Tabu_removed.participants.model)
+Tabu_removed.participants_hdi <- sjstats::hdi(Tabu_removed.participants.model, prob = 0.95)
+Tabu_removed.participants_speaker <- Tabu_removed.participants_hdi[7,]
+Tabu_removed.participants_guesser <- Tabu_removed.participants_hdi[8,]
+
+####making S1 table
+simple_taboo_subset <- data.frame(row.names = "Round score",
+                         Speaker_mu = Tabu_removed.participants_summary$fixed["Speaker_SD",1],
+                         Speaker_HDI_low = Tabu_removed.participants_speaker[2],
+                         Speaker_HDI_high = Tabu_removed.participants_speaker[3],
+                         Speaker_sigma = Tabu_removed.participants_summary$fixed["Speaker_SD",2],
+                         Guesser_mu = Tabu_removed.participants_summary$fixed["Guesser_SD",1],
+                         Guesser_HDI_low = Tabu_removed.participants_guesser[2],
+                         Guesser_HDI_high = Tabu_removed.participants_guesser[3],
+                         Guesser_sigma = Tabu_removed.participants_summary$fixed["Guesser_SD",2])
+
+Taboo_table_subset <- round(simple_taboo_subset,2)
+Taboo_APA_table_subset <- cbind(Outcome = row.names(Taboo_table_subset), Taboo_table_subset)
+
+myoriginalwd <- getwd()
+setwd("Tables_and_plots")
+apa.table(data = Taboo_APA_table_subset,
+          level1.header = c("",
+                            "Speaker", 
+                            "Guesser"),
+          level1.colspan = c(1,4,4 ),
+          level2.header = colnames(Taboo_APA_table_subset),
+          number = "1",
+          title = "Bayesian Estimation of word guessing game performance",
+          filename = "S2 Taboo_table.docx",
+          note = "Note. HDI = Highest Density Interval; Std.dev = residual standard deviation",
+          save = T)$table
+setwd(myoriginalwd)
+```
+

@@ -38,6 +38,8 @@ key <- read.csv("SleSI_Masterkey.csv")
 sociometric.raw <- read.csv("sociometric_raw_data_combined.csv")
 sociometric.tagged <- join(sociometric.raw, key, type="inner", by = "ID", match = "all") #joining the two files
 sociometric.tagged <- sociometric.tagged[which(sociometric.tagged$ID != 294),] #Removing 294 (under 18)
+sociometric.tagged <- sociometric.tagged[which(sociometric.tagged$ID != 118),] #Removing 118 (no sleep data)
+sociometric.tagged <- sociometric.tagged[which(sociometric.tagged$ID != 673),] #Removing 294 (no sleep data)
 
 sociometric.tagged$audio_front_volume_SCALED <- scale(sociometric.tagged$audio_front_volume, center = T, scale = T) #scaling volume (since it has no understandable natural scale)
 sociometric.tagged$audio_front_vol_consistency_SCALED <- scale(sociometric.tagged$audio_front_vol_consistency, center = T, scale = T) #scaling volume (since it has no understandable natural scale)
@@ -45,11 +47,11 @@ sociometric.tagged$audio_front_vol_consistency_SCALED <- scale(sociometric.tagge
 
 #Descriptive statistics
 ```{r}
-sociometric.tagged %>% group_by(SD) %>% summarise(mean(speech_profile_total_speaking),sd(speech_profile_total_speaking)) %>% print.data.frame()
+sociometric.tagged %>% group_by(SD) %>% dplyr::summarise(mean(speech_profile_total_speaking),sd(speech_profile_total_speaking)) %>% print.data.frame()
 
-sociometric.tagged %>% group_by(SD) %>% summarise(mean(audio_front_volume_SCALED),sd(audio_front_volume_SCALED)) 
+sociometric.tagged %>% group_by(SD) %>% dplyr::summarise(mean(audio_front_volume_SCALED),sd(audio_front_volume_SCALED)) 
 
-sociometric.tagged %>% group_by(SD) %>% summarise(mean(audio_front_vol_consistency_SCALED),sd(audio_front_vol_consistency_SCALED)) 
+sociometric.tagged %>% group_by(SD) %>% dplyr::summarise(mean(audio_front_vol_consistency_SCALED),sd(audio_front_vol_consistency_SCALED)) 
 ```
 
 

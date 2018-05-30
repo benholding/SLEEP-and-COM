@@ -44,13 +44,13 @@ VF.complete %>% group_by(SD) %>% tally() #see how many per group
 #Descriptive statistics
 ```{r,warning=F}
 #Mean and standard deviations for FAS score
-VF.complete %>% group_by(SD) %>% summarise(mean(Score.FAS), sd(Score.FAS)) %>% print.data.frame()
+VF.complete %>% group_by(SD) %>% dplyr::summarise(mean(Score.FAS), sd(Score.FAS)) %>% print.data.frame()
 #Mean and standard deviations for FAS errors
-VF.complete %>% group_by(SD) %>% summarise(mean(Rejected.FAS.1), sd(Rejected.FAS.1))%>% print.data.frame()
+VF.complete %>% group_by(SD) %>% dplyr::summarise(mean(Rejected.FAS.1), sd(Rejected.FAS.1))%>% print.data.frame()
 #Mean and standard deviations for VERB score
-VF.complete %>% group_by(SD) %>% summarise(mean(Score.VERBS), sd(Score.VERBS)) %>% print.data.frame()
+VF.complete %>% group_by(SD) %>% dplyr::summarise(mean(Score.VERBS), sd(Score.VERBS)) %>% print.data.frame()
 #Mean and standard deviations for VERB errors
-VF.complete %>% group_by(SD) %>% summarise(mean(Rejected.VERBS), sd(Rejected.VERBS))%>% print.data.frame()
+VF.complete %>% group_by(SD) %>% dplyr::summarise(mean(Rejected.VERBS), sd(Rejected.VERBS))%>% print.data.frame()
 ```
 
 #Inferential statistics

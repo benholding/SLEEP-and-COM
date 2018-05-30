@@ -66,6 +66,7 @@ legoData_final <- lego.df[which(lego.df$Pair != 4),] #removing pair that went ov
 legoData_final <- legoData_final[which(legoData_final$Pair != 13),] #removing pair that went over time limit 
 legoData_final <- legoData_final[which(legoData_final$Pair != 97),] #removing pair with person under 18 years old.
 
+
 table(legoData_final$SD_beskrivare) #describer N
 table(legoData_final$SD_byggare) #builder N
 
@@ -356,5 +357,92 @@ apa.table(data = Lego_APA_table,
           note = "Note. HDI = Highest Density Interval; Std.dev = residual standard deviation",
           save = T)$table
 setwd(myoriginalwd)
-
 ```
+
+
+```{r, include=FALSE}
+#removing non-randomised participants (2 pairs)
+#removing pairs with person with no previous sleep history recorded
+legoData_removed.participants <- legoData_final 
+legoData_removed.participants <- legoData_removed.participants[which(legoData_removed.participants$Pair != 9),] #removing pair with 118
+legoData_removed.participants <- legoData_removed.participants[which(legoData_removed.participants$Pair != 72),] #removing pair with 673
+
+legoData_removed.participants.modelscore <- brm(Correct ~ SD_beskrivare+SD_byggare,
+                        data = legoData_removed.participants,
+                        prior=priors_score, 
+                        sample_prior = T, 
+                        cores = 4,
+                        family = cumulative)
+
+legoData_removed.participants.modeltime <- brm(TimeSec ~ SD_beskrivare+SD_byggare, legoData_removed.participants,prior=priors_TIME, sample_prior = T, cores = 4,family = gaussian)
+
+legoData_removed.participants.modeleff <- brm(efficiency_scaled ~ SD_beskrivare+SD_byggare, legoData_removed.participants,prior=priors_EFF, sample_prior = T, cores = 4, family = gaussian)
+########
+
+lego_score_subset_summary <- summary(legoData_removed.participants.modelscore)
+lego_score_subset_hdi <- sjstats::hdi(legoData_removed.participants.modelscore, prob = 0.95)
+lego_score_subset_describer <- lego_score_subset_hdi[10,]
+lego_score_subset_builder <- lego_score_subset_hdi[11,]
+#
+lego_time_subset_summary <- summary(legoData_removed.participants.modeltime)
+lego_time_subset_hdi <- sjstats::hdi(legoData_removed.participants.modeltime, prob = 0.95)
+lego_time_subset_describer <- lego_time_subset_hdi[2,]
+lego_time_subset_builder <- lego_time_subset_hdi[3,]
+#
+lego_eff_subset_summary <- summary(legoData_removed.participants.modeleff)
+lego_eff_subset_hdi <- sjstats::hdi(legoData_removed.participants.modeleff, prob = 0.95)
+lego_eff_subset_describer <- lego_eff_subset_hdi[2,]
+lego_eff_subset_builder <- lego_eff_subset_hdi[3,]
+
+####making S1 table
+simple_Lego_Score_subset <- data.frame(row.names = "Score",
+                         Describer_mu = lego_score_subset_summary$fixed["SD_beskrivare1",1],
+                         Describer_HDI_low = lego_score_subset_describer$hdi.low,
+                         Describer_HDI_high = lego_score_subset_describer$hdi.high,
+                         Describer_sigma = lego_score_subset_summary$fixed["SD_beskrivare1",2],
+                         Builder_mu = lego_score_subset_summary$fixed["SD_byggare1",1],
+                         Builder_HDI_low = lego_score_subset_builder$hdi.low,
+                         Builder_HDI_high = lego_score_subset_builder$hdi.high,
+                         Builder_sigma = lego_score_subset_summary$fixed["SD_byggare1",2])
+
+simple_Lego_time_subset <- data.frame(row.names = "Time",
+                         Describer_mu = lego_time_subset_summary$fixed["SD_beskrivare1",1],
+                         Describer_HDI_low = lego_time_subset_describer$hdi.low,
+                         Describer_HDI_high = lego_time_subset_describer$hdi.high,
+                         Describer_sigma = lego_time_subset_summary$fixed["SD_beskrivare1",2],
+                         Builder_mu = lego_time_subset_summary$fixed["SD_byggare1",1],
+                         Builder_HDI_low = lego_time_subset_builder$hdi.low,
+                         Builder_HDI_high = lego_time_subset_builder$hdi.high,
+                         Builder_sigma = lego_time_subset_summary$fixed["SD_byggare1",2])
+
+simple_Lego_efficiency_subset <- data.frame(row.names = "Efficiency",
+                         Describer_mu = lego_eff_subset_summary$fixed["SD_beskrivare1",1],
+                         Describer_HDI_low = lego_eff_subset_describer$hdi.low,
+                         Describer_HDI_high = lego_eff_subset_describer$hdi.high,
+                         Describer_sigma = lego_eff_subset_summary$fixed["SD_beskrivare1",2],
+                         Builder_mu = lego_eff_subset_summary$fixed["SD_byggare1",1],
+                         Builder_HDI_low = lego_eff_subset_builder$hdi.low,
+                         Builder_HDI_high = lego_eff_subset_builder$hdi.high,
+                         Builder_sigma = lego_eff_subset_summary$fixed["SD_byggare1",2])
+
+  
+Lego_table_subset <- rbind(simple_Lego_Score_subset, simple_Lego_time_subset, simple_Lego_efficiency_subset)
+Lego_table_subset <- round(Lego_table_subset,2)
+Lego_APA_table_subset <- cbind(Outcome = row.names(Lego_table_subset), Lego_table_subset)
+
+myoriginalwd <- getwd()
+setwd("Tables_and_plots")
+apa.table(data = Lego_APA_table_subset,
+          level1.header = c("",
+                            "Describer", 
+                            "Builder"),
+          level1.colspan = c(1,4,4),
+          level2.header = colnames(Lego_APA_table_subset),
+          number = "1",
+          title = "Bayesian Estimation of model building performance",
+          filename = "S1 Lego_table subset.docx",
+          note = "Note. HDI = Highest Density Interval; Std.dev = residual standard deviation",
+          save = T)$table
+setwd(myoriginalwd)
+```
+

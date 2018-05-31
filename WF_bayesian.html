@@ -215,22 +215,22 @@ $(document).ready(function () {
 <div id="descriptive-statistics" class="section level1">
 <h1>Descriptive statistics</h1>
 <pre class="r"><code>#Mean and standard deviations for FAS score
-VF.complete %&gt;% group_by(SD) %&gt;% summarise(mean(Score.FAS), sd(Score.FAS)) %&gt;% print.data.frame()</code></pre>
+VF.complete %&gt;% group_by(SD) %&gt;% dplyr::summarise(mean(Score.FAS), sd(Score.FAS)) %&gt;% print.data.frame()</code></pre>
 <pre><code>##   SD mean(Score.FAS) sd(Score.FAS)
 ## 1  0        37.76404      10.95655
 ## 2  1        40.96703      11.66329</code></pre>
 <pre class="r"><code>#Mean and standard deviations for FAS errors
-VF.complete %&gt;% group_by(SD) %&gt;% summarise(mean(Rejected.FAS.1), sd(Rejected.FAS.1))%&gt;% print.data.frame()</code></pre>
+VF.complete %&gt;% group_by(SD) %&gt;% dplyr::summarise(mean(Rejected.FAS.1), sd(Rejected.FAS.1))%&gt;% print.data.frame()</code></pre>
 <pre><code>##   SD mean(Rejected.FAS.1) sd(Rejected.FAS.1)
 ## 1  0             2.685393           3.291157
 ## 2  1             2.087912           2.273755</code></pre>
 <pre class="r"><code>#Mean and standard deviations for VERB score
-VF.complete %&gt;% group_by(SD) %&gt;% summarise(mean(Score.VERBS), sd(Score.VERBS)) %&gt;% print.data.frame()</code></pre>
+VF.complete %&gt;% group_by(SD) %&gt;% dplyr::summarise(mean(Score.VERBS), sd(Score.VERBS)) %&gt;% print.data.frame()</code></pre>
 <pre><code>##   SD mean(Score.VERBS) sd(Score.VERBS)
 ## 1  0          18.95506        5.844403
 ## 2  1          19.06593        6.651319</code></pre>
 <pre class="r"><code>#Mean and standard deviations for VERB errors
-VF.complete %&gt;% group_by(SD) %&gt;% summarise(mean(Rejected.VERBS), sd(Rejected.VERBS))%&gt;% print.data.frame()</code></pre>
+VF.complete %&gt;% group_by(SD) %&gt;% dplyr::summarise(mean(Rejected.VERBS), sd(Rejected.VERBS))%&gt;% print.data.frame()</code></pre>
 <pre><code>##   SD mean(Rejected.VERBS) sd(Rejected.VERBS)
 ## 1  0             1.348315           1.045566
 ## 2  1             1.241758           1.068131</code></pre>
@@ -253,15 +253,15 @@ FAS_best &lt;- BESTmcmc(VF.complete$Score.FAS[VF.complete$SD ==1],
 FAS.summary &lt;- summary(FAS_best)
 FAS.summary</code></pre>
 <pre><code>##             mean median   mode HDI%   HDIlo  HDIup compVal %&gt;compVal
-## mu1       40.818 40.817 40.798   95 38.3431 43.281                  
-## mu2       37.721 37.721 37.712   95 35.4334 40.004                  
-## muDiff     3.097  3.093  2.920   95 -0.2508  6.446       0      96.5
-## sigma1    11.448 11.401 11.358   95  9.5817 13.341                  
-## sigma2    10.583 10.548 10.472   95  8.7907 12.442                  
-## sigmaDiff  0.865  0.856  0.877   95 -1.6320  3.339       0      75.7
-## nu        38.685 29.987 15.149   95  4.2112 98.562                  
-## log10nu    1.475  1.477  1.495   95  0.8795  2.083                  
-## effSz      0.281  0.281  0.268   95 -0.0246  0.584       0      96.5</code></pre>
+## mu1       40.810 40.811 40.769   95 38.3663 43.254                  
+## mu2       37.715 37.723 37.738   95 35.3914 39.943                  
+## muDiff     3.095  3.097  3.152   95 -0.2298  6.473       0      96.5
+## sigma1    11.446 11.405 11.358   95  9.6434 13.365                  
+## sigma2    10.591 10.556 10.419   95  8.7969 12.446                  
+## sigmaDiff  0.855  0.852  0.855   95 -1.5951  3.322       0      75.6
+## nu        38.825 30.100 16.637   95  3.9492 98.833                  
+## log10nu    1.476  1.479  1.478   95  0.8734  2.078                  
+## effSz      0.281  0.281  0.271   95 -0.0214  0.589       0      96.5</code></pre>
 <pre class="r"><code>#######################ERRORS########################
 FAS_best_errors &lt;- BESTmcmc(VF.complete$Rejected.FAS.1[VF.complete$SD ==1], 
                      VF.complete$Rejected.FAS.1[VF.complete$SD ==0],
@@ -269,16 +269,16 @@ FAS_best_errors &lt;- BESTmcmc(VF.complete$Rejected.FAS.1[VF.complete$SD ==1],
 <pre><code>## Waiting for parallel processing to complete...done.</code></pre>
 <pre class="r"><code>FAS_errors.summary &lt;- summary(FAS_best_errors)
 FAS_errors.summary</code></pre>
-<pre><code>##              mean  median    mode HDI%  HDIlo HDIup compVal %&gt;compVal
-## mu1        1.4399  1.4347  1.4298   95  1.045 1.832                  
-## mu2        1.5439  1.5322  1.4969   95  1.103 1.996                  
-## muDiff    -0.1040 -0.1011 -0.0823   95 -0.663 0.456       0      35.8
-## sigma1     1.3652  1.3555  1.3070   95  1.020 1.724                  
-## sigma2     1.5228  1.5058  1.4998   95  1.065 2.008                  
-## sigmaDiff -0.1576 -0.1514 -0.1349   95 -0.667 0.335       0      26.9
-## nu         2.2221  2.1405  1.9901   95  1.334 3.262                  
-## log10nu    0.3355  0.3305  0.3227   95  0.147 0.527                  
-## effSz     -0.0701 -0.0702 -0.0609   95 -0.464 0.307       0      35.8</code></pre>
+<pre><code>##              mean median    mode HDI%  HDIlo HDIup compVal %&gt;compVal
+## mu1        1.4403  1.435  1.4294   95  1.050 1.839                  
+## mu2        1.5434  1.533  1.5327   95  1.103 1.995                  
+## muDiff    -0.1031 -0.101 -0.1198   95 -0.660 0.458       0      36.3
+## sigma1     1.3635  1.354  1.3420   95  1.018 1.719                  
+## sigma2     1.5236  1.507  1.4844   95  1.069 2.009                  
+## sigmaDiff -0.1601 -0.155 -0.1568   95 -0.665 0.343       0      26.7
+## nu         2.2174  2.137  2.0303   95  1.335 3.249                  
+## log10nu    0.3348  0.330  0.3178   95  0.154 0.532                  
+## effSz     -0.0693 -0.070 -0.0848   95 -0.451 0.318       0      36.3</code></pre>
 </div>
 <div id="swedish-verb-task" class="section level2">
 <h2>Swedish Verb Task</h2>
@@ -295,16 +295,16 @@ Verb_best &lt;- BESTmcmc(VF.complete$Score.VERBS[VF.complete$SD ==1],
 <pre class="r"><code>#Checking the output
 Verb.summary &lt;- summary(Verb_best)
 Verb.summary</code></pre>
-<pre><code>##              mean  median    mode HDI%  HDIlo HDIup compVal %&gt;compVal
-## mu1       18.7920 18.7870 18.7872   95 17.438 20.15                  
-## mu2       19.0577 19.0588 19.1053   95 17.834 20.27                  
-## muDiff    -0.2657 -0.2722 -0.3595   95 -2.098  1.56       0      38.6
-## sigma1     6.0647  6.0491  6.0411   95  4.901  7.27                  
-## sigma2     5.4413  5.4255  5.4145   95  4.414  6.49                  
-## sigmaDiff  0.6234  0.6185  0.5956   95 -0.741  2.00       0      81.7
-## nu        20.3826 13.7948  8.0829   95  2.975 59.12                  
-## log10nu    1.1801  1.1397  1.0241   95  0.627  1.83                  
-## effSz     -0.0481 -0.0472 -0.0472   95 -0.368  0.27       0      38.6</code></pre>
+<pre><code>##              mean  median    mode HDI%  HDIlo  HDIup compVal %&gt;compVal
+## mu1       18.7924 18.7886 18.7989   95 17.438 20.154                  
+## mu2       19.0568 19.0575 19.0268   95 17.826 20.255                  
+## muDiff    -0.2644 -0.2673 -0.2761   95 -2.121  1.562       0      38.7
+## sigma1     6.0740  6.0566  5.9745   95  4.890  7.292                  
+## sigma2     5.4487  5.4334  5.3874   95  4.439  6.506                  
+## sigmaDiff  0.6253  0.6202  0.6068   95 -0.718  2.042       0      81.6
+## nu        20.4211 13.8760  7.9799   95  3.118 59.117                  
+## log10nu    1.1823  1.1423  1.0571   95  0.628  1.822                  
+## effSz     -0.0477 -0.0466 -0.0464   95 -0.375  0.266       0      38.7</code></pre>
 <pre class="r"><code>###########################ERRORS##########################
 VERB_best_errors &lt;- BESTmcmc(VF.complete$Rejected.VERBS[VF.complete$SD ==1], 
                      VF.complete$Rejected.VERBS[VF.complete$SD ==0],
@@ -313,15 +313,15 @@ VERB_best_errors &lt;- BESTmcmc(VF.complete$Rejected.VERBS[VF.complete$SD ==1],
 <pre class="r"><code>VERB_errors.summary &lt;- summary(VERB_best_errors)
 VERB_errors.summary</code></pre>
 <pre><code>##              mean  median    mode HDI%  HDIlo  HDIup compVal %&gt;compVal
-## mu1        1.1802  1.1791  1.1745   95  0.969  1.394                  
-## mu2        1.3136  1.3139  1.3113   95  1.105  1.518                  
-## muDiff    -0.1335 -0.1340 -0.1413   95 -0.425  0.168       0      18.7
-## sigma1     0.9365  0.9326  0.9153   95  0.767  1.115                  
-## sigma2     0.8918  0.8869  0.8838   95  0.726  1.067                  
-## sigmaDiff  0.0447  0.0448  0.0432   95 -0.182  0.264       0      65.7
-## nu        10.7104  8.8894  7.1061   95  3.387 22.676                  
-## log10nu    0.9737  0.9489  0.9040   95  0.607  1.396                  
-## effSz     -0.1475 -0.1467 -0.1440   95 -0.471  0.181       0      18.7</code></pre>
+## mu1        1.1809  1.1811  1.1863   95  0.971  1.396                  
+## mu2        1.3141  1.3148  1.3209   95  1.107  1.517                  
+## muDiff    -0.1332 -0.1337 -0.1334   95 -0.424  0.169       0      18.8
+## sigma1     0.9358  0.9314  0.9248   95  0.763  1.111                  
+## sigma2     0.8920  0.8872  0.8711   95  0.726  1.069                  
+## sigmaDiff  0.0438  0.0438  0.0441   95 -0.180  0.268       0      65.3
+## nu        10.6677  8.8901  7.2056   95  3.402 22.303                  
+## log10nu    0.9722  0.9489  0.9004   95  0.601  1.382                  
+## effSz     -0.1472 -0.1464 -0.1472   95 -0.478  0.175       0      18.8</code></pre>
 </div>
 </div>
 

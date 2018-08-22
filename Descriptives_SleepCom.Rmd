@@ -9,10 +9,10 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#assessing sleep charectoristics
+#making the data file
 ```{r}
-#control group TST and overall accuracy
 library(data.table)
+library(dplyr)
 actigraphs <- read.csv("SleSI_actigraphy_Complete_2.csv")
 actigraphs$Morning <- as.numeric(as.character(actigraphs$Morning))
 actigraphs2 <- cbind(actigraphs$FP, actigraphs$SD., actigraphs$Morning, actigraphs$Time.in.bed..min., actigraphs$Assumed.sleep.time..min.)
@@ -20,35 +20,31 @@ colnames(actigraphs2) <- c("ID", "SD", "Night", "TIB", "TST")
 actigraphs2 <- as.data.frame(actigraphs2)
 actigraphs2$ID <- as.integer(actigraphs2$ID)
 
-actigraphs_and_key_data <- left_join(lego.complete, actigraphs2) #184 participants, 2 non-randomised (thus no actigraphy)
-
-
-###############
-#average time in bed per participant prior
-
-average_TIB <- aggregate(TIB ~ ID, actigraphs2, mean)
-mean(average_TIB$TIB)
-
 temp1 <- actigraphs2[which(actigraphs2$Night==4),]
 temp2 <- temp1[which(temp1$SD==0),] #some data NA due to missing actigraphy data
 temp2 <- temp2[which(temp2$ID != 294),] #Removing 294 (under 18)
 
+write.csv(temp2, "public_data/previous_night_sleep_times.csv", row.names= F)
+```
+
+#assessing sleep charectoristics
+```{r}
 
 # time in bed for controls day prior
 ## mean
 SleepCom.TIB <- mean(temp2$TIB, na.rm = T)/60 
-paste(floor(SleepCom.TIB), round((SleepCom.TIB-floor(SleepCom.TIB))*60), sep=":") #8:19
+paste(floor(SleepCom.TIB), round((SleepCom.TIB-floor(SleepCom.TIB))*60), sep=":") 
 
 ## standard deviation
-sd(temp2$TIB, na.rm = T) # 44.44184
+sd(temp2$TIB, na.rm = T)
 
 # sleep duration for controls day prior
 ## mean
 SleepCom.TST <- mean(temp2$TST, na.rm = T)/60
-paste(floor(SleepCom.TST), round((SleepCom.TST-floor(SleepCom.TST))*60), sep=":") #7:51
+paste(floor(SleepCom.TST), round((SleepCom.TST-floor(SleepCom.TST))*60), sep=":") 
 
 ## standard deviation
-sd(temp2$TST, na.rm = T) # 53.49712
+sd(temp2$TST, na.rm = T) 
 ```
 
 #Age and Sex

@@ -25,9 +25,8 @@ mainDir <- getwd()
 subDir <- "Tables_and_plots"
 ifelse(!dir.exists(file.path(mainDir, subDir)), dir.create(file.path(mainDir, subDir)), FALSE)
 ```
-
+#Making the final data frame
 ```{r, include=FALSE}
-#Data import and formatting 
 Verbalfluency.raw <- read.csv("Raw data - Word fluency_complete.csv")
 
 VF.trimmed <- Verbalfluency.raw[,-c(2:7,17)] # removing columns that are not needed
@@ -39,6 +38,8 @@ VF.complete <- VF.joined[which(VF.joined$ID != 294),] #Removing 294 (under 18)
 VF.complete <- VF.complete[which(VF.complete$ID != 573),] #removing row from participant who did not complete task
 
 VF.complete %>% group_by(SD) %>% tally() #see how many per group
+
+write.csv(VF.complete, "public_data/verbal_fluency_data.csv", row.names= F)
 ```
 
 #Descriptive statistics

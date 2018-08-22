@@ -113,6 +113,8 @@ Tabu_with_rounds$Score_ratio <- Tabu_with_rounds$Correct/Tabu_with_rounds$total_
 
 # calculating N per condition
 table(Tabu_with_rounds$Guesser_SD)/3
+
+write.csv(Tabu_with_rounds, "public_data/Taboo_byround_data.csv", row.names= F)
 ```
 
 #Descriptive statistics

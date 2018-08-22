@@ -43,6 +43,8 @@ sociometric.tagged <- sociometric.tagged[which(sociometric.tagged$ID != 673),] #
 
 sociometric.tagged$audio_front_volume_SCALED <- scale(sociometric.tagged$audio_front_volume, center = T, scale = T) #scaling volume (since it has no understandable natural scale)
 sociometric.tagged$audio_front_vol_consistency_SCALED <- scale(sociometric.tagged$audio_front_vol_consistency, center = T, scale = T) #scaling volume (since it has no understandable natural scale)
+
+write.csv(sociometric.tagged, "public_data/sociometric_data.csv", row.names= F)
 ```
 
 #Descriptive statistics

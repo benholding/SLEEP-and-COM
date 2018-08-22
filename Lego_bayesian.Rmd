@@ -26,10 +26,8 @@ subDir <- "Tables_and_plots"
 ifelse(!dir.exists(file.path(mainDir, subDir)), dir.create(file.path(mainDir, subDir)), FALSE)
 ```
 
-
+#creating the final data set
 ```{r Create DF, include=FALSE}
-#Data import and formatting
-#### LEGO DATA
 legodata <- read.csv("Rawdata_Lego.csv") #open raw data file
 
 lego.dyad <- legodata %>% 
@@ -70,6 +68,7 @@ legoData_final <- legoData_final[which(legoData_final$Pair != 97),] #removing pa
 table(legoData_final$SD_beskrivare) #describer N
 table(legoData_final$SD_byggare) #builder N
 
+write.csv(legoData_final, "public_data/lego_modelbuilding_data.csv", row.names= F)
 ```
 
 #Descriptive statistics

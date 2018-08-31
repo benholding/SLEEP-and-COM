@@ -39,11 +39,14 @@ sociometric.raw <- read.csv("sociometric_raw_data_combined.csv")
 sociometric.tagged <- join(sociometric.raw, key, type="inner", by = "ID", match = "all") #joining the two files
 sociometric.tagged <- sociometric.tagged[which(sociometric.tagged$ID != 294),] #Removing 294 (under 18)
 sociometric.tagged <- sociometric.tagged[which(sociometric.tagged$ID != 118),] #Removing 118 (no sleep data)
-sociometric.tagged <- sociometric.tagged[which(sociometric.tagged$ID != 673),] #Removing 294 (no sleep data)
+sociometric.tagged <- sociometric.tagged[which(sociometric.tagged$ID != 673),] #Removing 673 (no sleep data)
 
 sociometric.tagged$audio_front_volume_SCALED <- scale(sociometric.tagged$audio_front_volume, center = T, scale = T) #scaling volume (since it has no understandable natural scale)
 sociometric.tagged$audio_front_vol_consistency_SCALED <- scale(sociometric.tagged$audio_front_vol_consistency, center = T, scale = T) #scaling volume (since it has no understandable natural scale)
 
+#check what data we are missing:
+setdiff(key$ID, as.numeric(unique(as.character(sociometric.tagged$ID))))
+#write final data to csv:
 write.csv(sociometric.tagged, "public_data/sociometric_data.csv", row.names= F)
 ```
 

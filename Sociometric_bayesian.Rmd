@@ -47,6 +47,9 @@ sociometric.tagged$audio_front_vol_consistency_SCALED <- scale(sociometric.tagge
 #check what data we are missing:
 setdiff(key$ID, as.numeric(unique(as.character(sociometric.tagged$ID))))
 #write final data to csv:
+key_columns <- c("speech_profile_total_speaking","audio_front_volume_SCALED","audio_front_vol_consistency_SCALED", "SD")
+sociometric.tagged <- sociometric.tagged[key_columns]
+
 write.csv(sociometric.tagged, "public_data/sociometric_data.csv", row.names= F)
 ```
 

@@ -81,19 +81,28 @@ legoData_final[which(legoData_final$SD_beskrivare == 0 & legoData_final$SD_bygga
 legoData_final[which(legoData_final$SD_beskrivare == 0 & legoData_final$SD_byggare == 0),] %>% 
   summarise(Score_sd=sd(Correct,na.rm=T),Time_sd=sd(TimeSec,na.rm=T),efficiency_sd=sd(efficiency_scaled,na.rm=T))
 
-#Means (Score, Time & Efficiency) for pairs where one of the participants are sleep deprived
-legoData_final[which(legoData_final$SD_beskrivare != legoData_final$SD_byggare),] %>% 
+#Means (Score, Time & Efficiency): describer = control, builder = sleepdeprived
+legoData_final[which(legoData_final$SD_beskrivare == 0 & legoData_final$SD_byggare == 1),] %>% 
   summarise(Score_mean=mean(Correct,na.rm=T),Time_mean=mean(TimeSec,na.rm=T),efficiency_mean=mean(efficiency_scaled,na.rm=T))
 
-#Standard deviation (Score, Time & Efficiency) for pairs where one of the participants are sleep deprived
-legoData_final[which(legoData_final$SD_beskrivare != legoData_final$SD_byggare),] %>% 
+#Standard deviation (Score, Time & Efficiency): describer = control, builder = sleepdeprived
+legoData_final[which(legoData_final$SD_beskrivare == 0 & legoData_final$SD_byggare == 1),] %>% 
   summarise(Score_sd=sd(Correct,na.rm=T),Time_sd=sd(TimeSec,na.rm=T),efficiency_sd=sd(efficiency_scaled,na.rm=T))
 
-#Means (Score, Time & Efficiency) for pairs where both partiicpants are sleep deprived
-legoData_final[which(legoData_final$SD_beskrivare == 1 & legoData_final$SD_byggare == 1),]  %>% 
+#Means (Score, Time & Efficiency): describer = sleepdeprived, builder = control
+legoData_final[which(legoData_final$SD_beskrivare == 1 & legoData_final$SD_byggare == 0),] %>% 
   summarise(Score_mean=mean(Correct,na.rm=T),Time_mean=mean(TimeSec,na.rm=T),efficiency_mean=mean(efficiency_scaled,na.rm=T))
-#Standard deviation (Score, Time & Efficiency) for pairs where both partiicpants are sleep deprived
-legoData_final[which(legoData_final$SD_beskrivare == 1 & legoData_final$SD_byggare == 1),]  %>% 
+
+#Standard deviation (Score, Time & Efficiency): describer = sleepdeprived, builder = control
+legoData_final[which(legoData_final$SD_beskrivare == 1 & legoData_final$SD_byggare == 0),] %>% 
+  summarise(Score_sd=sd(Correct,na.rm=T),Time_sd=sd(TimeSec,na.rm=T),efficiency_sd=sd(efficiency_scaled,na.rm=T))
+
+#Means (Score, Time & Efficiency): describer = sleepdeprived, builder = sleepdeprived
+legoData_final[which(legoData_final$SD_beskrivare == 1 & legoData_final$SD_byggare == 1),] %>% 
+  summarise(Score_mean=mean(Correct,na.rm=T),Time_mean=mean(TimeSec,na.rm=T),efficiency_mean=mean(efficiency_scaled,na.rm=T))
+
+#Standard deviation (Score, Time & Efficiency): describer = sleepdeprived, builder = sleepdeprived
+legoData_final[which(legoData_final$SD_beskrivare == 1 & legoData_final$SD_byggare == 1),] %>% 
   summarise(Score_sd=sd(Correct,na.rm=T),Time_sd=sd(TimeSec,na.rm=T),efficiency_sd=sd(efficiency_scaled,na.rm=T))
 ```
 
@@ -112,6 +121,9 @@ brms.Byggare.model <- brm(Correct ~ SD_byggare, legoData_final,prior=priors_scor
 brms.BB.model <- brm(Correct ~ SD_beskrivare+SD_byggare, legoData_final,prior=priors_score, sample_prior = T, cores = 4)
 brms.interaction.model <- brm(Correct ~ SD_beskrivare*SD_byggare, legoData_final,prior=priors_score, sample_prior = T, cores = 4)
 
+#make plot of interaction effects
+brms::marginal_effects(brms.interaction.model)
+
 #model comparison
 model1.waic <- WAIC(brms.intercept.model)
 model2.waic <- WAIC(brms.Beskrivare.model)
@@ -119,6 +131,7 @@ model3.waic <- WAIC(brms.BB.model)
 model4.waic <- WAIC(brms.interaction.model)
 modelbyggare.waic <- WAIC(brms.Byggare.model)
 compare_ic(model1.waic,model2.waic,modelbyggare.waic,model3.waic,model4.waic)
+pm.compare(model1.waic,model2.waic)
 
 model1.loo <- LOO(brms.intercept.model)
 model2.loo <- LOO(brms.Beskrivare.model)

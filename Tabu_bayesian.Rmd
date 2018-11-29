@@ -109,8 +109,6 @@ Tabu_with_rounds <- as.data.frame(Tabu_with_rounds)
 
 Tabu_with_rounds <- Tabu_with_rounds[which(Tabu_with_rounds$pair != 97),] #removing pair with person under 18 years old. 
 
-Tabu_with_rounds$Score_ratio <- Tabu_with_rounds$Correct/Tabu_with_rounds$total_attempts #3rd outcome variable
-
 # calculating N per condition
 table(Tabu_with_rounds$Guesser_SD)/3
 
@@ -119,12 +117,19 @@ write.csv(Tabu_with_rounds, "public_data/Taboo_byround_data.csv", row.names= F)
 
 #Descriptive statistics
 ```{r}
+#both control
 Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD == 0 & Tabu_with_rounds$Speaker_SD == 0),] %>% summarise_all(mean) %>% print.data.frame()
 Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD == 0 & Tabu_with_rounds$Speaker_SD == 0),] %>% summarise_all(sd) %>% print.data.frame()
 
-Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD != Tabu_with_rounds$Speaker_SD),] %>% summarise_all(mean) %>% print.data.frame()
-Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD != Tabu_with_rounds$Speaker_SD),] %>% summarise_all(sd) %>% print.data.frame()
+#guesser control, speaker sleepdeprived
+Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD == 0 & Tabu_with_rounds$Speaker_SD == 1),] %>% summarise_all(mean) %>% print.data.frame()
+Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD == 0 & Tabu_with_rounds$Speaker_SD == 1),] %>% summarise_all(sd) %>% print.data.frame()
 
+#guesser sleepdeprived, speaker control
+Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD == 1 & Tabu_with_rounds$Speaker_SD == 0),] %>% summarise_all(mean) %>% print.data.frame()
+Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD == 1 & Tabu_with_rounds$Speaker_SD == 0),] %>% summarise_all(sd) %>% print.data.frame()
+
+#both sleep deprived
 Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD  == 1 & Tabu_with_rounds$Speaker_SD == 1),] %>% summarise_all(mean) %>% print.data.frame()
 Tabu_with_rounds[which(Tabu_with_rounds$Guesser_SD  == 1 & Tabu_with_rounds$Speaker_SD == 1),] %>% summarise_all(sd) %>% print.data.frame()
 ```

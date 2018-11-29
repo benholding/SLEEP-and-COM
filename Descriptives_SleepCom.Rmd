@@ -20,11 +20,23 @@ colnames(actigraphs2) <- c("ID", "SD", "Night", "TIB", "TST")
 actigraphs2 <- as.data.frame(actigraphs2)
 actigraphs2$ID <- as.integer(actigraphs2$ID)
 
+first3nights <- actigraphs2[which(actigraphs2$Night!=4),]
+first3nights <- first3nights[which(first3nights$ID != 294),]#Removing 294 (age unknown)
+first3nights %>% group_by(SD) %>% summarise(mean(TST, na.rm = T)) #calculating sleep for first3nights
+
+paste(floor(469/60), round((469/60-floor(469/60))*60), sep=":") # mean control - "7:49"
+paste(floor(472/60), round((472/60-floor(472/60))*60), sep=":") # mean SleepDep - "7:52"
+
+first3nights %>% group_by(SD) %>% summarise(sd(TST, na.rm = T)) #calculating sleep SD for first3nights
+paste(floor(50.9/60), round((50.9/60-floor(50.9/60))*60), sep=":") # SD control - "0:51"
+paste(floor(54.9/60), round((54.9/60-floor(54.9/60))*60), sep=":") # SD SleepDep - "0:55"
+
 temp1 <- actigraphs2[which(actigraphs2$Night==4),]
 temp2 <- temp1[which(temp1$SD==0),] #some data NA due to missing actigraphy data
-temp2 <- temp2[which(temp2$ID != 294),] #Removing 294 (under 18)
+temp2 <- temp2[which(temp2$ID != 294),] #Removing 294 (age unknown)
 
 write.csv(temp2, "public_data/previous_night_sleep_times.csv", row.names= F)
+
 ```
 
 #assessing sleep charectoristics
